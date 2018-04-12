@@ -1,3 +1,20 @@
+/*Text Styles*/
+body{
+	font-family: 'Fira Sans', sans-serif;
+}
+
+.text-header{
+	font-size: 24pt;
+}
+
+.text-medium{
+	font-size: 16pt;
+}
+
+.text-small{
+	font-size: 10pt;
+}
+
 /*Styles for the top bar*/
 #top-bar{
 	width: 70%;
@@ -110,21 +127,11 @@
 	display: none;
 }
 
-/*Text Styles*/
-body{
-	font-family: 'Fira Sans', sans-serif;
-}
 
-.text-header{
-	font-size: 24pt;
+/*Login Page styles*/
+#login-background{
+	position: fixed;
+	top: 80px;
+	width: 1500px;
 }
-
-.text-medium{
-	font-size: 16pt;
-}
-
-.text-small{
-	font-size: 10pt;
-}
-
 

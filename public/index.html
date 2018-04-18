@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <!-- <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1"> -->
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Sharify</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link href="https://fonts.googleapis.com/css?family=Fira+Sans" rel="stylesheet">
+    <link rel="stylesheet" href="css/main.css">
+
+  </head>
+  <body>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="js/views.js"></script>
+    <script src="https://sdk.scdn.co/spotify-player.js"></script>   
+ 
+    <!-- Leave this; passes token to webplayer -->
+    <div id="oauth"></div>    
+
+    <!--Top Bar-->
+    <div id="top-bar">
+      <img id="top-icon" src="media/music_icon.png" onclick="pageChanger(1)">
+      <div id="top-title">Music Sharer</div>
+      <div id="top-right">
+        <div class="text-medium" style="display:inline" onclick="pageChanger(3)">User Name</div>
+        <a href="./login.html" style="display:inline"><button id="top-start-stream" type="button" class="btn btn-default">Log Out</button></a>
+      </div>
+    </div>
+
+    <!--Queue Bar-->
+    <div id="queue-bar" class="col-sm-3 col-md-2 sidebar">
+      <!--Stream Info-->
+      <div id="stream-info">
+        <div class="row">
+          <div class="col-md-2" style="padding-top: 10px">
+            <img src="media/user.png">
+          </div>
+          <div class="col-md-10">
+            <div class="text-medium">Streamer Name</div>
+            <div class="text-small">Stream Description to tell people about the stream. Must be short.</div>
+          </div><!--col-->
+        </div><!--row-->
+      </div><!--stream-info-->
+
+      <!--Current Song-->
+      <div id="current-song">
+        <div class="row">
+          <div class="col-md-3">
+            <img id="current-song-image" src="media/album.png">
+          </div>
+          <div class="col-md-9">
+            <div class="text-medium" id="current-song-name">Song Name</div>
+            <div class="text-small" id="current-song-artist">Artist Name/Album Title</div>
+          </div>
+        </div>
+      </div><!--current-song-->
+      <button class="btn btn-default" id="pause-button">Pause it</button>
+      <button class="btn btn-default" id="play-button">Play it</button>
+      <!--Queue-->
+      <div id="queue">
+        <div class="text-medium">Queue</div>
+        <ul class="nav nav-sidebar">
+          <li class="active"><a href="#">Overview <span class="sr-only">(current)</span></a></li>
+          <li><a href="#">Reports</a></li>
+          <li><a href="#">Analytics</a></li>
+          <li><a href="#">Export</a></li>
+        </ul>
+        <ul class="nav nav-sidebar">
+          <li><a href="">Nav item</a></li>
+          <li><a href="">Nav item again</a></li>
+          <li><a href="">One more nav</a></li>
+          <li><a href="">Another nav item</a></li>
+          <li><a href="">More navigation</a></li>
+        </ul>
+        <ul class="nav nav-sidebar">
+          <li><a href="">Nav item again</a></li>
+          <li><a href="">One more nav</a></li>
+          <li><a href="">Another nav item</a></li>
+        </ul>
+        <ul class="nav nav-sidebar">
+          <li><a href="">Nav item again</a></li>
+          <li><a href="">One more nav</a></li>
+          <li><a href="">Another nav item</a></li>
+        </ul>
+        <ul class="nav nav-sidebar">
+          <li><a href="">Nav item again</a></li>
+          <li><a href="">One more nav</a></li>
+          <li><a href="">Another nav item</a></li>
+        </ul>
+      </div>
+
+    </div><!--queue-bar-->
+
+    <!--Main Panel-->
+    <div id="main-panel" class="container-fluid">
+
+      <!--Home Page-->
+      <div id="home-page">
+        <div class="row">
+          <div class="col-md-3 col-md-offset-9 text-right">
+            <button id="top-start-stream" type="button" class="btn btn-default" onclick="pageChanger(2)">Start Stream</button>
+          </div>
+        </div>
+        <div class="text-header">Currently Streaming</div>
+        <div id="home-streams" class="well"></div>
+      </div>
+
+      <!--Manage Stream Page-->
+      <div id="stream-page">
+        <div class="text-header">Manage Stream</div>
+        <ul class="nav nav-tabs">
+          <li id="stream-tab-playlist" role="presentation text-medium" class="active"><a href="#" onclick="streamManageTab(1)">Select Playlist</a></li>
+          <li id="stream-tab-search" role="presentation text-medium"><a href="#" onclick="streamManageTab(2)">Search Songs</a></li>
+        </ul>
+        <!-- <div class="row">
+          <div class="col-md-3 col-md-offset-2 tab-header text-medium">Select Playlist</div>
+          <div class="col-md-3 col-md-offset-2 tab-header text-medium">Search Songs</div>
+        </div> -->
+
+        <!--Select Playlist-->
+        <div id="stream-playlist">
+          <div class="well"></div>
+        </div>
+
+        <!--Search Songs-->
+        <div id="stream-search">
+          <div class="row">
+            <div class="col-md-4">
+              <div class="input-group">
+                <input type="text" class="form-control" placeholder="Enter serach term...">
+                <span class="input-group-btn">
+                  <button class="btn btn-default" type="button">Search</button>
+                </span>
+              </div> <!--input group-->
+            </div><!--col-->
+          </div><!--row-->
+          <div class="row">
+            <div class="col-md-12">
+              <div class="well"></div>
+            </div><!--col-->
+          </div><!--row-->
+        </div>
+      </div><!--stream-page-->
+
+      <!--Profile Page-->
+      <div id="profile-page">
+        
+      </div>
+    </div><!--main-panel-->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/webplayer.js"></script>
+  </body>
+</html>

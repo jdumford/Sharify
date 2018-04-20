@@ -104,7 +104,6 @@ body{
 
 /*Manage Stream page styles*/
 #stream-page{
-	display: none;
 }
 
 #stream-search{
@@ -124,7 +123,6 @@ body{
 
 /*Profile page styles*/
 #profile-page{
-	display: none;
 }
 
 

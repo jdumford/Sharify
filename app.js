@@ -42,22 +42,44 @@ var redirect_uri = 'https://34.224.122.69:443/callback/';
 
 var app = express();
 
-// app.get('/login', function(req, res) {
-//   var state = generateRandomString(16);
-//   res.cookie(stateKey, state);
+//JD adding from Node.js Login tutorial
+app.set('views', path.join(__dirname, 'views'));
+app.engine('handlebars', exphbs({defaultLayout: 'layout'}));
+app.set('view engine', 'handlebars');
 
-//   // your application requests authorization
-//   var scope = 'user-read-private user-read-email user-read-currently-playing ' +
-//   'user-read-playback-state user-modify-playback-state streaming user-read-birthdate';
-//   res.redirect('https://accounts.spotify.com/authorize?' +
-//     querystring.stringify({
-//       response_type: 'code',
-//       client_id: client_id,
-//       scope: scope,
-//       redirect_uri: redirect_uri,
-//       state: state
-//     }));
-// });
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(cookieParser());
+
+app.use(express.static(path.join(__dirname,  'public')));
+
+app.use(session({
+  secret: 'secret',
+  saveUninitialized: true,
+  resave: true
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.use('/', routes);
+
+app.get('/login', function(req, res) {
+  var state = generateRandomString(16);
+  res.cookie(stateKey, state);
+
+  // your application requests authorization
+  var scope = 'user-read-private user-read-email user-read-currently-playing ' +
+  'user-read-playback-state user-modify-playback-state streaming user-read-birthdate';
+  res.redirect('https://accounts.spotify.com/authorize?' +
+    querystring.stringify({
+      response_type: 'code',
+      client_id: client_id,
+      scope: scope,
+      redirect_uri: redirect_uri,
+      state: state
+    }));
+});
 
 // app.get('/callback', function(req, res) {
 //   // your application requests refresh and access tokens
@@ -149,27 +171,7 @@ var app = express();
 // });
 
 
-//JD adding from Node.js Login tutorial
-app.set('views', path.join(__dirname, 'views'));
-app.engine('handlebars', exphbs({defaultLayout: 'layout'}));
-app.set('view engine', 'handlebars');
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: false}));
-app.use(cookieParser());
-
-app.use(express.static(path.join(__dirname,  'public')));
-
-app.use(session({
-  secret: 'secret',
-  saveUninitialized: true,
-  resave: true
-}));
-
-app.use(passport.initialize());
-app.use(passport.session());
-
-app.use('/', routes);
 
 
 

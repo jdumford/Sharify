@@ -14,9 +14,9 @@ var fs = require('fs');
 var routes = require('./routes/index');
 
 
-//var options = {
-// key: fs.readFileSync('/home/ec2-user/group4/project/node/keys/key.pem'), 
-// cert: fs.readFileSync('/home/ec2-user/group4/project/node/keys/key-cert.pem') };
+var options = {
+key: fs.readFileSync('keys/key.pem'), 
+cert: fs.readFileSync('keys/key-cert.pem') };
 
 var client_id = '55ca26e27b504f9599192446f26b25cb';
 var client_secret = '44dce2df9d474eeea72e3e52b94badff'; 
@@ -28,17 +28,17 @@ var redirect_uri = 'https://34.224.122.69:443/callback/';
  * @param  {number} length The length of the string
  * @return {string} The generated string
  */
-// var generateRandomString = function(length) {
-//   var text = '';
-//   var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+var generateRandomString = function(length) {
+  var text = '';
+  var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
-//   for (var i = 0; i < length; i++) {
-//     text += possible.charAt(Math.floor(Math.random() * possible.length));
-//   }
-//   return text;
-// };
+  for (var i = 0; i < length; i++) {
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+  }
+  return text;
+};
 
-// var stateKey = 'spotify_auth_state';
+var stateKey = 'spotify_auth_state';
 
 var app = express();
 
@@ -64,7 +64,9 @@ app.use(passport.session());
 
 app.use('/', routes);
 
-app.get('/login', function(req, res) {
+
+
+app.get('/login/spotify', function(req, res) {
   var state = generateRandomString(16);
   res.cookie(stateKey, state);
 

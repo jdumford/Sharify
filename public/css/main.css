@@ -129,7 +129,18 @@ body{
 /*Login Page styles*/
 #login-background{
 	position: fixed;
-	top: 80px;
+	top: 0px;
 	width: 1500px;
+	z-index: 10;
+}
+
+#spotify-login-button{
+	z-index: 11;
+	width: 200px;
+	height: 40px;
+	padding-top: 10px;
+	position: fixed;
+	top: 80px;
+	left: 42%;
 }
 

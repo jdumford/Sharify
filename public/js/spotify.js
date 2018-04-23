@@ -36,7 +36,7 @@
     }
 
 
-  function searchAlbums(query) {
+  function searchTracks(query) {
     $.ajax({
         url: 'https://api.spotify.com/v1/search',
         type: "GET",
@@ -46,6 +46,8 @@
             type: 'track'
         },
         success: function (response) {
+          var images = "<img src=\"/media/play.png\" class=\"search-icons search-play\">"
+          + "<img src=\"/media/plus.png\" class=\"search-icons plus\">"
           var trackList = ""
           for (i = 0; i < 3; i++) {
             var track = response["tracks"]["items"][i];
@@ -53,7 +55,7 @@
             var songName = track["name"];
             var songArtist = track["artists"][0]["name"];
             trackList += "<li class=\"search-track\" data-songid=\"" + songID + "\">"
-            + songName + " - " + songArtist + "</li>"
+            + images + songName + " - " + songArtist + "</li>"
           }
           document.getElementById('track-list').innerHTML = trackList;
         },
@@ -62,14 +64,19 @@
         }});
     }
 
-    function play(){
+    function play(trackID){
+      var dataString = null;
+      if (trackID != null){
+        dataString = '{"uris": ["spotify:track:' + trackID + '\"]}'
+      }
+
       $.ajax({
         url: 'https://api.spotify.com/v1/me/player/play?device_id=' + deviceID.sharer,
         type: "PUT",
-        data: '{"uris": ["spotify:track:40h65HAR8COEoqkMwUUQHu"]}',
+        data: dataString,
         headers: headers,
         success: function(data) {
-          //console.log("success");
+          // console.log("playing")
         },
         error: function (xhr, ajaxOptions, thrownError){
           console.log(xhr.status);
@@ -79,20 +86,27 @@
     $("#play-button").click(function() {
       pause();
       play();
+      $(this).addClass('hidden');
+      $("#pause-button").removeClass('hidden');
     });
 
     $("#pause-button").click(function() {
       pause();
+      $(this).addClass('hidden');
+      $("#play-button").removeClass('hidden');
     });
 
     $("#playlist-button").click(function() {
       getCurrentUserPlaylists();
     });
 
-    $("#track-list").on('click', '.search-track', function() {
-      console.log($(this).data('songid'));
+    $("#track-list").on('click', '.search-play', function() {
+      var songID = $(this).parent().data('songid');
+      pause();
+      play(songID);
     });
 
-    $("#search-form").submit(function() {
-      searchAlbums(document.getElementById('query').value);
+    $("#search-form").submit(function(e){
+      e.preventDefault();
+      searchTracks(document.getElementById('query').value);
     });

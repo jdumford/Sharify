@@ -104,7 +104,6 @@ body{
 
 /*Manage Stream page styles*/
 #stream-page{
-	display: none;
 }
 
 #stream-search{
@@ -124,14 +123,57 @@ body{
 
 /*Profile page styles*/
 #profile-page{
-	display: none;
 }
 
 
 /*Login Page styles*/
 #login-background{
 	position: fixed;
-	top: 80px;
+	top: 0px;
 	width: 1500px;
+	z-index: 10;
 }
 
+#spotify-login-button{
+	z-index: 11;
+	width: 200px;
+	height: 40px;
+	padding-top: 10px;
+	position: fixed;
+	top: 80px;
+	left: 42%;
+}
+
+.playback-btn {
+	width: 35px;
+	height: 35px;
+	margin: auto;
+	display: block;
+}
+
+.search-icons {
+	width: 20px;
+	height: 20px;
+	margin: 0 15px 0 0;
+}
+
+#query {
+	margin-top: 1em;
+	margin-bottom: 1em;
+	width: 400px;
+}
+
+ul {
+	list-style-type: none;
+  width: 500px;
+}
+
+li {
+  margin: 0;
+  padding: 10px;
+}
+
+li:hover {
+  background: #eee;
+  cursor: pointer;
+}

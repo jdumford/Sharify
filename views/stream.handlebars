@@ -5,10 +5,6 @@
     <li id="stream-tab-playlist" role="presentation text-medium" class="active"><a href="#" onclick="streamManageTab(1)">Select Playlist</a></li>
     <li id="stream-tab-search" role="presentation text-medium"><a href="#" onclick="streamManageTab(2)">Search Songs</a></li>
   </ul>
-  <div class="row">
-    <div class="col-md-3 col-md-offset-2 tab-header text-medium">Select Playlist</div>
-    <div class="col-md-3 col-md-offset-2 tab-header text-medium">Search Songs</div>
-  </div>
 
   <!--Select Playlist-->
   <div id="stream-playlist">
@@ -20,11 +16,14 @@
     <div class="row">
       <div class="col-md-4">
         <div class="input-group">
-          <input type="text" class="form-control" placeholder="Enter serach term...">
-          <span class="input-group-btn">
-            <button class="btn btn-default" type="button">Search</button>
-          </span>
-        </div> <!--input group-->
+          <form id="search-form">
+            <input type="text" id="query" value="" placeholder="Search..." class="form-control" >
+          </form>
+        </div> <!--search-form-->
+        <div id="search-results">
+          <ul id="track-list">
+          </ul>
+        </div><!--search-results-->
       </div><!--col-->
     </div><!--row-->
     <div class="row">

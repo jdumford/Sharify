@@ -3,7 +3,6 @@ var deviceID = {'sharer': null};
 
 function updateSongInfo(state){
   var current_track = state["track_window"]["current_track"]
-  console.log(state);
   $('#current-song-name').html(current_track["name"]);
   $('#current-song-artist').html(current_track["artists"][0]["name"] + " / " + current_track["album"]["name"]);
   $('#current-song-image').attr("src", current_track["album"]["images"][1]["url"]);

@@ -63,8 +63,8 @@ body{
 }
 
 #current-song{
-	height: 90px;
 	padding-top: 10px;
+	padding-bottom: 10px;
 	border-bottom: 1px solid black;
 }
 
@@ -144,3 +144,75 @@ body{
 	left: 42%;
 }
 
+.playback-btn {
+	width: 35px;
+	height: 35px;
+	margin: auto;
+	display: block;
+}
+
+#query {
+	margin-top: 1em;
+	margin-bottom: 1em;
+	width: 400px;
+}
+
+ul {
+	list-style-type: none;
+}
+
+.search-icons {
+	width: 20px;
+	height: 20px;
+	margin: 0 15px 0 0;
+}
+
+.search-results {
+  width: 700px;
+	padding-left: 10px;
+}
+
+.search-well{
+	display: none;
+}
+
+.search-item {
+  margin: 0;
+  padding: 10px;
+	border-radius: 5px;
+}
+
+.playlist-songs{
+	display: none;
+	max-height: 250px;
+	overflow-y: scroll;
+}
+
+::-webkit-scrollbar {
+    background: transparent;
+}
+
+.slidecontainer {
+	 width: 70%;
+	 padding-top: 1em;
+	 margin: auto;
+}
+
+.slider {
+    -webkit-appearance: none;
+    height: 10px;
+    border-radius: 5px;
+    background: #d3d3d3;
+		outline: none;
+    opacity: 0.7;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #4CAF50;
+    cursor: pointer;
+}

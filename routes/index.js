@@ -31,6 +31,10 @@ router.get('/login', function(req, res){
 	console.log('login');
 })
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 98bbe08e2456ec5596ab5d46fb5535b36083daa7
 router.get('/login/spotify', function(req, res) {
   var state = generateRandomString(16);
   res.cookie(stateKey, state);
@@ -114,7 +118,6 @@ router.get('/callback', function(req, res) {
   }
 });
 
-
 function ensureAuth(req, res, next){
 	if(req.isAuthenticated()){
 		return next();
@@ -157,4 +160,7 @@ var generateRandomString = function(length) {
 };
 
 module.exports = router;
+<<<<<<< HEAD
 
+=======
+>>>>>>> 98bbe08e2456ec5596ab5d46fb5535b36083daa7

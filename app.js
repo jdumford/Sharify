@@ -39,8 +39,8 @@ app.use(passport.session());
 
 app.use('/', routes);
 
-//https.createServer(options, app).listen(443);
-app.set('port', (process.env.PORT || 3000));
-app.listen(app.get('port'), function(){
-  console.log('Server started on port ' + app.get('port'));
-});
+https.createServer(options, app).listen(443);
+//app.set('port', (process.env.PORT || 3000));
+//app.listen(app.get('port'), function(){
+//  console.log('Server started on port ' + app.get('port'));
+//});

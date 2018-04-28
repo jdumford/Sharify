@@ -1,8 +1,4 @@
-var express = require('express'); // Express web server framework 
-<<<<<<< HEAD
-var request = require('request');
-=======
->>>>>>> 98bbe08e2456ec5596ab5d46fb5535b36083daa7
+var express = require('express'); // Express web server framework
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
@@ -12,6 +8,8 @@ var passport = require('passport');
 var http = require('http');
 var https = require('https');
 var fs = require('fs');
+var oracledb = require('oracledb');
+var dbConfig = require('./dbconfig.js');
 
 var routes = require('./routes/index');
 
@@ -43,138 +41,43 @@ app.use(passport.session());
 
 app.use('/', routes);
 
-<<<<<<< HEAD
-app.get("/getsong", function (req, res) {
-  var options = {
-    url: 'https://api.spotify.com/v1/me/playlists',
-    headers: { 'Authorization': 'Bearer ' + 'access_code' }
-  };
-  request.get(options, function(error, response, body) {
-    res.status(200).jsonp(body);
+// Get a non-pooled connection
+oracledb.getConnection(
+  {
+    user          : dbConfig.user,
+    password      : dbConfig.password,
+    connectString : dbConfig.connectString
+  },
+  function(err, connection) {
+    if (err) {
+      console.error(err.message);
+      return;
+    }
+    connection.execute(
+      // The statement to execute
+        `SELECT * from customer`,
+
+      // The callback function handles the SQL execution results
+      function(err, result) {
+        if (err) {
+          console.error(err.message);
+          doRelease(connection);
+          return;
+        }
+        console.log(result.metaData);
+        console.log(result.rows);
+        doRelease(connection);
+      });
   });
 
-});
-
-https.createServer(options, app).listen(443);
-
-// the following doesn't seem compatible with  the login callback
-=======
-<<<<<<< HEAD
-
-app.get('/login/', function(req, res) {
-  var state = generateRandomString(16);
-  res.cookie(stateKey, state);
-
-  // your application requests authorization
-  var scope = 'user-read-private user-read-email user-read-currently-playing ' +
-  'user-read-playback-state user-modify-playback-state streaming user-read-birthdate';
-  res.redirect('https://accounts.spotify.com/authorize?' +
-    querystring.stringify({
-      response_type: 'code',
-      client_id: client_id,
-      scope: scope,
-      redirect_uri: redirect_uri,
-      state: state
-    }));
-});
-
-app.get('/callback', function(req, res) {
-  // your application requests refresh and access tokens
-  // after checking the state parameter
-  var code = req.query.code || null;
-  var state = req.query.state || null;
-  var storedState = req.cookies ? req.cookies[stateKey] : null;
-
-  //previously if (state === null || state !== storedState))
-  // changed this from the example provided by spotify. the first time someone tried to login, there was
-  // no cookie for the spotify_auth_state key, and user got an error screen even though authentication with spotify worked
-  if (state === null || (storedState && state !== storedState)) {
-    console.log(error);
-    res.redirect('/login' +
-      querystring.stringify({
-        error: 'state_mismatch'
-      }));
-  }
-  else {
-    res.clearCookie(stateKey);
-    var authOptions = {
-      url: 'https://accounts.spotify.com/api/token',
-      form: {
-        code: code,
-        redirect_uri: redirect_uri,
-        grant_type: 'authorization_code'
-      },
-      headers: {
-        'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64'))
-      },
-      json: true
-    };
-
-    request.post(authOptions, function(error, response, body) {
-      if (!error && response.statusCode === 200) {
-
-        var access_token = body.access_token,
-            refresh_token = body.refresh_token;
-
-        // use the access token to access the Spotify Web API
-        var options = {
-          url: 'https://api.spotify.com/v1/me',
-          headers: { 'Authorization': 'Bearer ' + access_token },
-          json: true
-        };
-        request.get(options, function(error, response, body) {
-          console.log("successful /me call");
-        });
-
-        // we can also pass the token to the browser to make requests from there
-        res.redirect('/#' +
-          querystring.stringify({
-            access_token: access_token,
-            refresh_token: refresh_token
-          }));
-      }
-      // invalid token
-      else {
-        res.redirect('/#' +
-          querystring.stringify({
-            error: 'invalid_token'
-          }));
+// Note: connections should always be released when not needed
+function doRelease(connection) {
+  connection.close(
+    function(err) {
+      if (err) {
+        console.error(err.message);
       }
     });
-  }
-});
+}
 
-
-// app.get('/refresh_token', function(req, res) {
-//   // requesting access token from refresh token
-//   var refresh_token = req.query.refresh_token;
-//   var authOptions = {
-//     url: 'https://accounts.spotify.com/api/token',
-//     headers: { 'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64')) },
-//     form: {
-//       grant_type: 'refresh_token',
-//       refresh_token: refresh_token
-//     },
-//     json: true
-//   };
-
-//   request.post(authOptions, function(error, response, body) {
-//     if (!error && response.statusCode === 200) {
-//       var access_token = body.access_token;
-//       res.send({
-//         'access_token': access_token
-//       });
-//     }
-//   });
-// });
-
-
-
-
-https.createServer(options, app).listen(443);
->>>>>>> 98bbe08e2456ec5596ab5d46fb5535b36083daa7
-//app.set('port', (process.env.PORT || 3000));
-//app.listen(app.get('port'), function(){
-//  console.log('Server started on port ' + app.get('port'));
-//});
-
+https.createServer(options, app).listen(8888);

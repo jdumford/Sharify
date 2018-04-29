@@ -1,5 +1,3 @@
-var deviceID = {'sharer': null};
-
 function getCookie(cname) {
     var name = cname + "=";
     var decodedCookie = decodeURIComponent(document.cookie);
@@ -16,33 +14,58 @@ function getCookie(cname) {
     return "";
 }
 
+var headers = {
+    'Accept': 'application/json',
+    'Content-Type':'application/json',
+    'Authorization': 'Bearer ' + getCookie('webplayer-token')
+  };
 
-function updateSongInfo(state){
-  var current_track = state["track_window"]["current_track"]
+function play(trackID){
+  var dataString = null;
+  if (trackID != null){
+    dataString = '{"uris": ["spotify:track:' + trackID + '\"]}'
+  }
+
+  $.ajax({
+    url: 'https://api.spotify.com/v1/me/player/play?device_id=' + deviceID.sharer,
+    type: "PUT",
+    data: dataString,
+    headers: headers,
+    success: function(data) {
+      // console.log("playing")
+    },
+    error: function (xhr, ajaxOptions, thrownError){
+      console.log(xhr.status);
+    }});
+}
+
+function onStateChange(state){
+  if (isSongOver(state)){
+    play(getNextTrack());
+  };
+
+  updateCurrentTrack(state["track_window"]["current_track"])
+}
+
+var previousTracks = 0;
+function isSongOver(state){
+  if (previousTracks != state["track_window"]["previous_tracks"].length)
+  {
+    console.log(state);
+    previousTracks = state["track_window"]["previous_tracks"].length;
+    return true;
+  }
+  return false;
+}
+
+function updateCurrentTrack(current_track){
   $('#current-song-name').html(current_track["name"]);
   $('#current-song-artist').html(current_track["artists"][0]["name"] + " / " + current_track["album"]["name"]);
   $('#current-song-image').attr("src", current_track["album"]["images"][1]["url"]);
 }
 
-window.onSpotifyWebPlaybackSDKReady = () => {
-  var token = getCookie('webplayer-token');
-  const player = new Spotify.Player({
-    name: 'Music Sharer',
-    getOAuthToken: cb => { cb(token); }
-  });
 
-// Error handling
-player.addListener('initialization_error', ({ message }) => { console.error(message); });
-player.addListener('authentication_error', ({ message }) => { console.error(message); });
-player.addListener('account_error', ({ message }) => { console.error(message); });
-player.addListener('playback_error', ({ message }) => { console.error(message); });
-
-player.addListener('player_state_changed', state => updateSongInfo(state));
-
-player.addListener('ready', ({ device_id }) => {
-  deviceID.sharer = device_id;
-  console.log('Ready with Device ID', device_id);
-});
-
-player.connect();
-};
+function getNextTrack(){
+  // database call
+  return '6byp7KQaDiJXkDqxVL0hbk'
+}

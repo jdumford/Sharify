@@ -1,5 +1,21 @@
-const token = params.access_token;
 var deviceID = {'sharer': null};
+
+function getCookie(cname) {
+    var name = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+    for(var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+}
+
 
 function updateSongInfo(state){
   var current_track = state["track_window"]["current_track"]
@@ -9,10 +25,11 @@ function updateSongInfo(state){
 }
 
 window.onSpotifyWebPlaybackSDKReady = () => {
+  var token = getCookie('webplayer-token');
   const player = new Spotify.Player({
-  name: 'Music Sharer',
-  getOAuthToken: cb => { cb(token); }
-});
+    name: 'Music Sharer',
+    getOAuthToken: cb => { cb(token); }
+  });
 
 // Error handling
 player.addListener('initialization_error', ({ message }) => { console.error(message); });

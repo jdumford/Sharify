@@ -1,9 +1,70 @@
+function getCookie(cname) {
+    var name = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+    for(var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+}
 
-  var headers = {
-      'Accept': 'application/json',
-      'Content-Type':'application/json',
-      'Authorization': 'Bearer ' + params.access_token,
-    };
+var headers = {
+    'Accept': 'application/json',
+    'Content-Type':'application/json',
+    'Authorization': 'Bearer ' + getCookie('webplayer-token')
+  };
+
+$(document).ready(function(){
+  //getCurrentUserPlaylists();
+  getCurrentUser();
+  if (window.location.pathname == '/stream'){
+    getCurrentUserPlaylists();
+  }
+  //changeVolume(50);
+  //getsong();
+  //displayStreams([access_token]);
+});
+
+function getsong(){
+  $.ajax({
+    url: 'https://35.171.97.26:8888/getsong',
+    type: "GET",
+    dataType: 'jsonp',
+    success: function(data) {
+    //   console.log(data);
+    },
+    error: function (xhr, ajaxOptions, thrownError){
+      console.log(xhr.status);
+    }});
+}
+
+async function displayStreams(access_codes){
+  var streamData = await getStreamData(access_codes);
+  console.log(streamData);
+}
+
+async function getStreamData(access_codes){
+  var stream_headers = headers;
+  var stream_data = [];
+
+  for (var i in access_codes) {
+    stream_headers.Authorization = 'Bearer ' + access_codes[i]
+    var response = await $.ajax({
+      url: 'https://api.spotify.com/v1/me/player/currently-playing',
+      type: "GET",
+      headers: stream_headers
+    });
+    stream_data.push(response);
+    }
+  return stream_data;
+  }
+
 
   function searchTracks(query) {
     $.ajax({
@@ -63,6 +124,21 @@
           console.log(xhr.status);
         }});
       }
+
+
+  function getCurrentUser(){
+    $.ajax({
+      url: 'https://api.spotify.com/v1/me',
+      type: "GET",
+      headers: headers,
+      success: function(data){
+        $('#username').html(data['display_name'])
+      },
+      error: function (xhr, ajaxOptions, thrownError){
+        console.log(xhr.status);
+      }});
+    }
+
 
     async function getPlaylistTracks(playlistID, index){
       var userID = await getUserID();
@@ -165,13 +241,8 @@
       $("#play-button").removeClass('hidden');
     });
 
-    $("#stream-tab-playlist, #top-start-stream").click(function() {
+    $("#stream-tab-playlist).click(function() {
       getCurrentUserPlaylists();
-    });
-
-    $(document).ready(function(){
-      getCurrentUserPlaylists();
-      changeVolume(50);
     });
 
     $("#track-list, #playlist-list").on('click', '.search-play', function() {

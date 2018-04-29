@@ -8,6 +8,8 @@ var passport = require('passport');
 var http = require('http');
 var https = require('https');
 var fs = require('fs');
+var oracledb = require('oracledb');
+var dbConfig = require('./dbconfig.js');
 
 //DB stuff
 var async = require('async');

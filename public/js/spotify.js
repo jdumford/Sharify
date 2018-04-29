@@ -7,6 +7,7 @@ $(document).ready(function(){
   }
     // database call to get queue song ids
   getTracksFromIDs(['0GKlgYoKod155w3erIfFXn', '0AFZnXDUT5qbJboJMZ6zlp'])
+  getQueue();
   //changeVolume(50);
   //getsong();
   //displayStreams([access_token]);
@@ -262,3 +263,16 @@ async function getStreamData(access_codes){
     $('#volumeSlider').mouseup(function(){
       changeVolume($(this).val());
     });
+
+function getQueue(){
+  $.ajax({
+    url: 'https://35.171.97.26:8888/getqueue',
+    type: "GET",
+    dataType: 'jsonp',
+    success: function(data) {
+       console.log(data);
+    },
+    error: function (xhr, ajaxOptions, thrownError){
+      console.log(xhr.status);
+    }});
+}

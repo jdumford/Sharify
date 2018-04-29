@@ -4,6 +4,10 @@ var querystring = require('querystring');
 
 var router = express.Router();
 
+var async = require('async');
+var oracledb = require('oracledb');
+var dbConfig = require('../dbconfig.js');
+
 var client_id = '55ca26e27b504f9599192446f26b25cb';
 var client_secret = '44dce2df9d474eeea72e3e52b94badff';
 var redirect_uri = 'https://34.224.122.69:8888/callback/';
@@ -132,6 +136,70 @@ var generateRandomString = function(length) {
   }
   return text;
 };
+
+oracledb.createPool(
+  dbConfig,
+  function(err, pool) {
+    if (err)
+      console.error(err.message)
+    else{
+      var songsqueue = doit(pool);
+      var i;
+      for (i = 0; i < songsqueue.length; i++) { 
+          console.log(songsqueue[i]);
+      }
+    }
+  });
+var doit = function(pool) {
+  var songsqueue = [];
+  async.waterfall(
+    [
+      function(cb) {
+        pool.getConnection(cb);
+      },
+      // Tell the DB to buffer DBMS_OUTPUT
+      enableDbmsOutput,
+      // Method 1: Fetch a line of DBMS_OUTPUT at a time
+      getQueue,
+      songsqueue = fetchDbmsOutputLine,
+    ],
+    function (err, conn) {
+      if (err) { console.error("In waterfall error cb: ==>", err, "<=="); }
+      conn.release(function (err) { if (err) console.error(err.message); });
+    }
+  )
+   return songsqueue;
+};
+var enableDbmsOutput = function (conn, cb) {
+  conn.execute(
+    "begin dbms_output.enable(null); end;",
+    function(err) { return cb(err, conn) });
+}
+var getQueue = function (conn, cb) {
+  conn.execute(
+    "begin "
+     + "getPack.getQueue(:sid);"
+     + "end;",
+     {sid : 1},
+    function(err) { return cb(err, conn) });
+}
+var fetchDbmsOutputLine = function (conn, cb) {
+  conn.execute(
+    "begin dbms_output.get_line(:ln, :st); end;",
+    { ln: { dir: oracledb.BIND_OUT, type:oracledb.STRING, maxSize: 32767 },
+      st: { dir: oracledb.BIND_OUT, type:oracledb.NUMBER } },
+    function(err, result) {
+      if (err) {
+        return cb(err, conn);
+      } else if (result.outBinds.st == 1) {
+	console.log("none");
+        return null; //cb(null, conn);  // no more output
+      } else {
+	console.log(result.outBinds.ln);
+        return [result.outBinds.ln].push(fetchDbmsOutputLine(conn, cb));
+      }
+    });
+  }
 
 module.exports = router;
 

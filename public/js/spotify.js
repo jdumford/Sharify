@@ -1,24 +1,3 @@
-function getCookie(cname) {
-    var name = cname + "=";
-    var decodedCookie = decodeURIComponent(document.cookie);
-    var ca = decodedCookie.split(';');
-    for(var i = 0; i < ca.length; i++) {
-        var c = ca[i];
-        while (c.charAt(0) == ' ') {
-            c = c.substring(1);
-        }
-        if (c.indexOf(name) == 0) {
-            return c.substring(name.length, c.length);
-        }
-    }
-    return "";
-}
-
-var headers = {
-    'Accept': 'application/json',
-    'Content-Type':'application/json',
-    'Authorization': 'Bearer ' + getCookie('webplayer-token')
-  };
 
 $(document).ready(function(){
   //getCurrentUserPlaylists();
@@ -26,6 +5,8 @@ $(document).ready(function(){
   if (window.location.pathname == '/stream'){
     getCurrentUserPlaylists();
   }
+    // database call to get queue song ids
+  getTracksFromIDs(['0GKlgYoKod155w3erIfFXn', '0AFZnXDUT5qbJboJMZ6zlp'])
   //changeVolume(50);
   //getsong();
   //displayStreams([access_token]);
@@ -209,24 +190,35 @@ async function getStreamData(access_codes){
         }});
       }
 
-    function play(trackID){
-      var dataString = null;
-      if (trackID != null){
-        dataString = '{"uris": ["spotify:track:' + trackID + '\"]}'
-      }
+   // trackIDs is array of strings
+   function getTracksFromIDs(trackIDs){
+     $.ajax({
+       url: 'https://api.spotify.com/v1/tracks',
+       type: "GET",
+       headers: headers,
+       data: {
+         ids: trackIDs.join()
+       },
+       success: function(data) {
+         updateQueueDisplay(data["tracks"])
+       },
+       error: function (xhr, ajaxOptions, thrownError){
+         console.log(xhr.status);
+     }});
+   }
 
-      $.ajax({
-        url: 'https://api.spotify.com/v1/me/player/play?device_id=' + deviceID.sharer,
-        type: "PUT",
-        data: dataString,
-        headers: headers,
-        success: function(data) {
-          // console.log("playing")
-        },
-        error: function (xhr, ajaxOptions, thrownError){
-          console.log(xhr.status);
-        }});
+   function updateQueueDisplay(songs){
+    var songdisplay = ""
+    for (var i in songs) {
+      var songname = songs[i]["name"]
+      var songartist = songs[i]["artists"][0]["name"]
+      var songid = songs[i]["id"]
+      songdisplay += "<li class=\"queue-item\" id=\"queue-" + String(i) + "\" data-queuesongid=\""
+       + songid + "\">" + songname + " - " + songartist + "</li>"
     }
+    $('#queue-list').html(songdisplay)
+   }
+
 
     $("#play-button").click(function() {
       pause();
@@ -270,4 +262,3 @@ async function getStreamData(access_codes){
     $('#volumeSlider').mouseup(function(){
       changeVolume($(this).val());
     });
-

@@ -17,15 +17,14 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://sdk.scdn.co/spotify-player.js"></script>
     <script src="/js/views.js"></script>
-    <!-- <script src="https://sdk.scdn.co/spotify-player.js"></script>   -->
 
     <!--Top Bar-->
     <div id="top-bar">
       <a href="/"><img id="top-icon" src="/media/music_icon.png"></a>
       <div id="top-title">Music Sharer</div>
       <div id="top-right">
-        <div class="text-medium" style="display:inline"><a href="/profile">User Name</a></div>
-        <a href="./login.html" style="display:inline"><button id="top-start-stream" type="button" class="btn btn-default">Log Out</button></a>
+        <div class="text-medium" style="display:inline"><a id="username" href="/profile">User Name</a></div>
+        <a href="./logout" style="display:inline"><button id="top-start-stream" type="button" class="btn btn-default">Log Out</button></a>
       </div>
     </div>
 
@@ -110,7 +109,6 @@
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="/js/auth.js"></script>
     <script src="/js/webplayer.js"></script>
     <script src="/js/spotify.js"></script>
   </body>

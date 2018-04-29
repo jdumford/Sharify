@@ -137,17 +137,14 @@ var generateRandomString = function(length) {
   return text;
 };
 
+var squeue = [];
 oracledb.createPool(
   dbConfig,
-  function(err, pool) {
+  async function(err, pool) {
     if (err)
       console.error(err.message)
     else{
-      var songsqueue = doit(pool);
-      var i;
-      for (i = 0; i < songsqueue.length; i++) { 
-          console.log(songsqueue[i]);
-      }
+      squeue = await doit(pool);
     }
   });
 var doit = function(pool) {
@@ -192,14 +189,20 @@ var fetchDbmsOutputLine = function (conn, cb) {
       if (err) {
         return cb(err, conn);
       } else if (result.outBinds.st == 1) {
-	console.log("none");
         return null; //cb(null, conn);  // no more output
       } else {
-	console.log(result.outBinds.ln);
         return [result.outBinds.ln].push(fetchDbmsOutputLine(conn, cb));
       }
     });
   }
+
+var getQueue function(req, res) {
+     var i;
+    for (i = 0; i < squeue.length; i++)
+	    res.jsonp(squeue[i]);
+
+
+}
 
 module.exports = router;
 

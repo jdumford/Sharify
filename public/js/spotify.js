@@ -241,7 +241,7 @@ async function getStreamData(access_codes){
       $("#play-button").removeClass('hidden');
     });
 
-    $("#stream-tab-playlist).click(function() {
+    $("#stream-tab-playlist").click(function() {
       getCurrentUserPlaylists();
     });
 

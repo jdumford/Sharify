@@ -96,10 +96,6 @@ router.get('/callback', function(req, res) {
         var refresh_token = body.refresh_token;
 
         res.cookie(webtoken, body.access_token);
-	res.cookie('sid', body.
-
-	var tokens = req.app.get('tokens');
-	tokens[] = 
         req.app.set('tokens', {'access': body.access_token,
          'refresh': body.refresh_token});
 

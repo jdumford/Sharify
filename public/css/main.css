@@ -76,6 +76,19 @@ body{
 	overflow-y: scroll;
 }
 
+.queue-item{
+    border-bottom: 1px solid black;
+}
+
+.votes{
+    margin-top: -7px;
+    margin-bottom: -9px;
+}
+
+.vote-icon{
+    width: 20px;
+}
+
 /*Main section of the page*/
 #main-panel{
 	margin-top: 70px;
@@ -200,15 +213,12 @@ ul {
 	max-height: 250px;
 	overflow-y: scroll;
 }
-/*
-::-webkit-scrollbar {
-    background: transparent;
-}*/
 
 .slidecontainer {
-	 width: 70%;
-	 padding-top: 1em;
-	 margin: auto;
+    display: inline-block;
+    width: 70%;
+    padding-top: 15px;
+    margin: auto;
 }
 
 .slider {

@@ -225,9 +225,14 @@ async function getStreamData(){
 	   var songartist = songs[i]["artists"][0]["name"]
 	   var songid = songs[i]["id"]
 	   songdisplay += '<div class="row queue-item" id="queue-' + String(i) + '" data-queuesongid="' +
-               songid + '">' + songname + ' - ' + songartist + '</div>'
+               songid + '"><div class="col-xs-8" style="padding-top:5px"><div class="queue-info">' + songname + 
+	       '</div><div class="queue-info">' + songartist + '</div></div>' +
+	       '<div class="col-xs-4 text-right"><div style="text-align:center">' + 
+	       '<img class="vote-icon" src="/media/upvote.png"><div class="votes">' + '0' + 
+	       '</div><img class="vote-icon" src="/media/downvote.png"></div></div></div>';
        }
        $('#queue').append(songdisplay)
+       $('.queue-info').autoTextTape();
    }
 
 

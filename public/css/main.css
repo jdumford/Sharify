@@ -103,9 +103,12 @@ body{
 }
 
 .stream-row{
-    height: 100px;
-    padding: 10px;
-    border-bottom: 1px solid black;
+    height: 80px;
+    padding: 7px;
+    border: 1px solid black;
+    border-radius: 15px;
+    margin-bottom: 5px;
+    cursor: pointer;
 }
 
 .stream-img{
@@ -178,8 +181,7 @@ ul {
 }
 
 .search-results {
-  width: 700px;
-	padding-left: 10px;
+    padding-left: 10px;
 }
 
 .search-well{
@@ -187,9 +189,10 @@ ul {
 }
 
 .search-item {
-  margin: 0;
-  padding: 10px;
-	border-radius: 5px;
+    margin: 0;
+    padding: 10px;
+    border-radius: 5px;
+    cursor:pointer;
 }
 
 .playlist-songs{
@@ -197,10 +200,10 @@ ul {
 	max-height: 250px;
 	overflow-y: scroll;
 }
-
+/*
 ::-webkit-scrollbar {
     background: transparent;
-}
+}*/
 
 .slidecontainer {
 	 width: 70%;

@@ -123,8 +123,7 @@ router.get('/callback', function(req, res) {
 
 
 
-// sample request without using cookie
-
+//uses access tokens of streaming friends to get info about what they're playing
 router.get("/friends-streaming", function (req, res) {
     var tokens = req.app.get('tokens');
     var options = {
@@ -141,8 +140,10 @@ router.get("/friends-streaming", function (req, res) {
     console.log(token_count)
     var streams = []
     for(var t in tokens){
+	console.log(tokens[t])
 	options.headers.Authorization = 'Bearer ' + tokens[t].access;
 	request.get(options, function(error, response, body) {
+	    console.log(response)
 	    var stream = {
 		name: body['item']['name'],
 		artist: body.item.artists[0].name,

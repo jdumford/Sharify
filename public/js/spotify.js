@@ -27,19 +27,10 @@ function getsong(){
     }});
 }
 
-async function displayStreams(access_codes){
-  var streamData = await getStreamData(access_codes);
-  console.log(streamData);
-}
-
+//makes a call to the backend to get the information for friends currently streaming
 async function getStreamData(){
-    //var stream_headers = headers;
     var stream_data = [];
-    /*
-    $.get('/friends-streaming', function(res){
-	console.log(res);
-    });
-    */
+
     
     $.ajax({
 	url: 'https://34.224.122.69:8888/friends-streaming',
@@ -48,11 +39,15 @@ async function getStreamData(){
 	success: function(streams) {
 	    for(var i in streams){
 		console.log(streams[i])
-		var s = '<div class="row stream-row"><div class="col-md-3" style="text-align:center"><img class="stream-img" src="' + 
-		    streams[i].album_cover + '"><div>' + streams[i].name + ' - ' +
-                    streams[i].artist + '</div></div><div class="col-md-9"><div class>' + 
-		    'Streamer Name' + '</div><div>' + 'This is a description'  + '</div></div></div>';
+		var s = '<div class="stream-row"><div class="col-sm-6 col-lg-7"><div style="font-size: 18pt">' +
+		    'Streamer Name' + '</div><div>' + 'This is a description'  + '</div></div>' +
+		    '<div class="col-sm-3 col-lg-2" style="text-align:center"><img class="stream-img" src="' + 
+		    streams[i].album_cover + '"></div><div class="col-sm-3"><div class="scroll-info">' + 
+		    'Currently Playing</div><div class="scroll-info">' + streams[i].name + ' - ' + 
+		    streams[i].artist + '</div><div class="scroll-info">Current Listeners: ' + 
+		    '7' + '</div></div></div>';
 		$('#friends-streams').append(s)
+		$('.scroll-info').autoTextTape();
 	    }
 	},
 	error: function (xhr, ajaxOptions, thrownError){
@@ -224,15 +219,15 @@ async function getStreamData(){
    }
 
    function updateQueueDisplay(songs){
-    var songdisplay = ""
-    for (var i in songs) {
-      var songname = songs[i]["name"]
-      var songartist = songs[i]["artists"][0]["name"]
-      var songid = songs[i]["id"]
-      songdisplay += "<li class=\"queue-item\" id=\"queue-" + String(i) + "\" data-queuesongid=\""
-       + songid + "\">" + songname + " - " + songartist + "</li>"
-    }
-    $('#queue-list').html(songdisplay)
+       var songdisplay = ""
+       for (var i in songs) {
+	   var songname = songs[i]["name"]
+	   var songartist = songs[i]["artists"][0]["name"]
+	   var songid = songs[i]["id"]
+	   songdisplay += '<div class="row queue-item" id="queue-' + String(i) + '" data-queuesongid="' +
+               songid + '">' + songname + ' - ' + songartist + '</div>'
+       }
+       $('#queue').append(songdisplay)
    }
 
 
@@ -260,14 +255,15 @@ async function getStreamData(){
     });
 
     $("#playlist-list").on('click', '.playlist', function() {
-      if ($(this).children().is(':visible')){
-        $(this).children().slideUp();
-      }
-      else{
-        var playlistID = $(this).data('playlistid');
-        var index = $(this).attr('id');
-        getPlaylistTracks(playlistID, index);
-      }
+	if ($(this).children().is(':visible')){
+            $(this).children().slideUp();
+	}
+	else{
+	    $('.playlist').children().slideUp();
+            var playlistID = $(this).data('playlistid');
+            var index = $(this).attr('id');
+            getPlaylistTracks(playlistID, index);
+	}
     });
 
     $("#search-form").submit(function(e){

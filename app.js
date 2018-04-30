@@ -44,6 +44,8 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.set('tokens', {});
+
 app.use('/', routes);
 
 /* Database joining work - Luigi*/

@@ -102,6 +102,16 @@ body{
 	border-radius: 8px;*/
 }
 
+.stream-row{
+    height: 100px;
+    padding: 10px;
+    border-bottom: 1px solid black;
+}
+
+.stream-img{
+    width: 60px;
+}
+
 /*Manage Stream page styles*/
 #stream-page{
 }

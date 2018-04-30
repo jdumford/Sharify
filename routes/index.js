@@ -26,6 +26,7 @@ router.get('/', function(req, res){
         }
 });
 
+
 router.get('/profile', function(req, res){
 	res.render('profile');
 	console.log('profile');
@@ -92,16 +93,20 @@ router.get('/callback', function(req, res) {
 
   request.post(authOptions, function(error, response, body) {
     if (!error && response.statusCode === 200) {
-
-        var refresh_token = body.refresh_token;
-
-        res.cookie(webtoken, body.access_token);
-	res.cookie('sid', body.
-
-	var tokens = req.app.get('tokens');
-	tokens[] = 
-        req.app.set('tokens', {'access': body.access_token,
-         'refresh': body.refresh_token});
+	res.cookie(webtoken, body.access_token);
+	var options = {
+	    url: 'https://api.spotify.com/v1/me',
+	    headers: { 'Authorization': 'Bearer ' + body.access_token},
+	    json: true
+	};
+	request.get(options, function(error, response, user_info) {
+	    var tokens = req.app.get('tokens');
+	    tokens[user_info['id']] = {
+		'access': body.access_token,
+		'refresh': body.refresh_token
+	    }
+	    req.app.set('tokens', tokens)
+	});
 
         res.redirect('/');
      }
@@ -116,18 +121,45 @@ router.get('/callback', function(req, res) {
   }
 });
 
+
+
 // sample request without using cookie
-router.get("/getsong", function (req, res) {
-  var tokens = req.app.get('tokens');
 
-  var options = {
-    url: 'https://api.spotify.com/v1/me/playlists',
-    headers: { 'Authorization': 'Bearer ' + tokens.access}
-  };
+router.get("/friends-streaming", function (req, res) {
+    var tokens = req.app.get('tokens');
+    var options = {
+	url: 'https://api.spotify.com/v1/me/player/currently-playing',
+	type: "GET",
+	headers: {
+	    'Accept': 'application/json',
+	    'Content-Type':'application/json'
+	},
+	json:true
+    }
+    var counter = 0;
+    var token_count = Object.keys(tokens).length
+    console.log(token_count)
+    var streams = []
+    for(var t in tokens){
+	options.headers.Authorization = 'Bearer ' + tokens[t].access;
+	request.get(options, function(error, response, body) {
+	    var stream = {
+		name: body['item']['name'],
+		artist: body.item.artists[0].name,
+		album: body.item.album.name,
+		album_cover: body.item.album.images[0].url
+	    }
+	    streams.push(stream)
+	    counter += 1
+	    console.log(counter)
+	    if(counter == token_count){
+		res.jsonp(streams);
+	    }
+	});
+    }
 
-  request.get(options, function(error, response, body) {
-     res.jsonp(body);
-  });
+
+
 
 });
 
@@ -199,14 +231,14 @@ var fetchDbmsOutputLine = function (conn, cb) {
       }
     });
   }
-
-var getQueue function(req, res) {
+/*
+var getQueue = function(req, res) {
      var i;
     for (i = 0; i < squeue.length; i++)
 	    res.jsonp(squeue[i]);
 
 
-}
+}*/
 
 module.exports = router;
 

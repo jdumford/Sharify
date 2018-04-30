@@ -1,16 +1,17 @@
 
 $(document).ready(function(){
-  //getCurrentUserPlaylists();
-  getCurrentUser();
-  if (window.location.pathname == '/stream'){
-    getCurrentUserPlaylists();
-  }
+    //getCurrentUserPlaylists();
+    getCurrentUser();
+    getStreamData();
+    if (window.location.pathname == '/stream'){
+	getCurrentUserPlaylists();
+    }
     // database call to get queue song ids
-  getTracksFromIDs(['0GKlgYoKod155w3erIfFXn', '0AFZnXDUT5qbJboJMZ6zlp'])
-  getQueue();
-  //changeVolume(50);
-  //getsong();
-  //displayStreams([access_token]);
+    getTracksFromIDs(['0GKlgYoKod155w3erIfFXn', '0AFZnXDUT5qbJboJMZ6zlp'])
+    getQueue();
+    //changeVolume(50);
+    //getsong();
+    //displayStreams([access_token]);
 });
 
 function getsong(){
@@ -31,21 +32,35 @@ async function displayStreams(access_codes){
   console.log(streamData);
 }
 
-async function getStreamData(access_codes){
-  var stream_headers = headers;
-  var stream_data = [];
-
-  for (var i in access_codes) {
-    stream_headers.Authorization = 'Bearer ' + access_codes[i]
-    var response = await $.ajax({
-      url: 'https://api.spotify.com/v1/me/player/currently-playing',
-      type: "GET",
-      headers: stream_headers
+async function getStreamData(){
+    //var stream_headers = headers;
+    var stream_data = [];
+    /*
+    $.get('/friends-streaming', function(res){
+	console.log(res);
     });
-    stream_data.push(response);
-    }
-  return stream_data;
-  }
+    */
+    
+    $.ajax({
+	url: 'https://34.224.122.69:8888/friends-streaming',
+	type: "GET",
+	dataType: 'jsonp',
+	success: function(streams) {
+	    for(var i in streams){
+		console.log(streams[i])
+		var s = '<div class="row stream-row"><div class="col-md-3" style="text-align:center"><img class="stream-img" src="' + 
+		    streams[i].album_cover + '"><div>' + streams[i].name + ' - ' +
+                    streams[i].artist + '</div></div><div class="col-md-9"><div class>' + 
+		    'Streamer Name' + '</div><div>' + 'This is a description'  + '</div></div></div>';
+		$('#friends-streams').append(s)
+	    }
+	},
+	error: function (xhr, ajaxOptions, thrownError){
+	    console.log("BAD")
+	    console.log(xhr.status);
+	}});
+    
+}
 
 
   function searchTracks(query) {

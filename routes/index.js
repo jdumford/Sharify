@@ -174,72 +174,89 @@ var generateRandomString = function(length) {
   return text;
 };
 
-var squeue = [];
-oracledb.createPool(
-  dbConfig,
-  async function(err, pool) {
-    if (err)
-      console.error(err.message)
-    else{
-      squeue = await doit(pool);
-    }
-  });
-var doit = function(pool) {
-  var songsqueue = [];
-  async.waterfall(
-    [
-      function(cb) {
-        pool.getConnection(cb);
-      },
-      // Tell the DB to buffer DBMS_OUTPUT
-      enableDbmsOutput,
-      // Method 1: Fetch a line of DBMS_OUTPUT at a time
-      getQueue,
-      songsqueue = fetchDbmsOutputLine,
-    ],
-    function (err, conn) {
-      if (err) { console.error("In waterfall error cb: ==>", err, "<=="); }
-      conn.release(function (err) { if (err) console.error(err.message); });
-    }
-  )
-   return songsqueue;
-};
-var enableDbmsOutput = function (conn, cb) {
-  conn.execute(
-    "begin dbms_output.enable(null); end;",
-    function(err) { return cb(err, conn) });
-}
 var getQueue = function (conn, cb) {
   conn.execute(
     "begin "
-     + "getPack.getQueue(:sid);"
-     + "end;",
-     {sid : 1},
+    + "getPack.getQueue(:sid);"
+    + "end;",
+    {sid : 1},
     function(err) { return cb(err, conn) });
-}
-var fetchDbmsOutputLine = function (conn, cb) {
-  conn.execute(
-    "begin dbms_output.get_line(:ln, :st); end;",
-    { ln: { dir: oracledb.BIND_OUT, type:oracledb.STRING, maxSize: 32767 },
-      st: { dir: oracledb.BIND_OUT, type:oracledb.NUMBER } },
-    function(err, result) {
-      if (err) {
-        return cb(err, conn);
-      } else if (result.outBinds.st == 1) {
-        return null; //cb(null, conn);  // no more output
-      } else {
-        return [result.outBinds.ln].push(fetchDbmsOutputLine(conn, cb));
+  }
+
+
+  router.get("/getqueue", function (req, res) {
+    getDatabaseResult(getQueue, res)
+  });
+
+  function getDatabaseResult(query, res){
+    var dbResults = []
+    function compileResults(result, isDone){
+      if (result){
+        dbResults.push(result)
+      }
+      else{
+        return dbResults; 
+      }
+    }
+
+    oracledb.createPool(dbConfig, function(err, pool) {
+      if (err)
+      console.error(err.message)
+      else{
+        doit(pool)
       }
     });
-  }
-/*
-var getQueue = function(req, res) {
-     var i;
-    for (i = 0; i < squeue.length; i++)
-	    res.jsonp(squeue[i]);
 
 
-}*/
+    var doit = function(pool) {
+      var output = [];
+      async.waterfall(
+        [
+          function(cb) {
+            pool.getConnection(cb);
+          },
+
+          enableDbmsOutput,
+          // Method 1: Fetch a line of DBMS_OUTPUT at a time
+          query,
+          output = fetchDbmsOutputLine,
+        ],
+        function (err, conn, result) {
+          if (err) { console.error("In waterfall error cb: ==>", err, "<=="); }
+          conn.release(function (err) { if (err) console.error(err.message); });
+          res.jsonp(result)
+        }
+      )
+      return output;
+    };
+
+    var enableDbmsOutput = function (conn, cb) {
+      conn.execute(
+        "begin dbms_output.enable(null); end;",
+        function(err) { return cb(err, conn) });
+      }
+
+
+      var fetchDbmsOutputLine = function (conn, cb) {
+        conn.execute(
+          "begin dbms_output.get_line(:ln, :st); end;",
+          { ln: { dir: oracledb.BIND_OUT, type:oracledb.STRING, maxSize: 32767 },
+          st: { dir: oracledb.BIND_OUT, type:oracledb.NUMBER } },
+          function(err, result) {
+            if (err) {
+              return cb(err, conn, null);
+            }
+            else if (result.outBinds.st == 1) {
+              compileResults(null, false);
+              return cb(null, conn, dbResults);
+            }
+            else {
+              compileResults(result.outBinds.ln, false)
+              return fetchDbmsOutputLine(conn, cb);
+            }
+          });
+        }}
+
 
 module.exports = router;
 

@@ -1,0 +1,41 @@
+<!--Manage Stream Page-->
+<div id="stream-page">
+  <div class="text-header">Manage Stream</div>
+  <ul class="nav nav-tabs">
+    <li id="stream-tab-playlist" role="presentation text-medium" class="active"><a href="#" onclick="streamManageTab(1)">Select Playlist</a></li>
+    <li id="stream-tab-search" role="presentation text-medium"><a href="#" onclick="streamManageTab(2)">Search Songs</a></li>
+  </ul>
+<<<<<<< HEAD
+  
+=======
+>>>>>>> 3a1172190580efcd9383400bc5bb106c90388d8c
+
+  <!--Select Playlist-->
+  <div id="stream-playlist">
+    <div class="well">
+      <ul id="playlist-list" class="search-results">
+      </ul>
+    </div>
+  </div>
+
+  <!--Search Songs-->
+  <div id="stream-search">
+    <div class="row">
+      <div class="col-md-4">
+        <div class="input-group">
+          <form id="search-form">
+            <input type="text" id="query" value="" placeholder="Search..." class="form-control" >
+          </form>
+        </div> <!--search-form-->
+      </div><!--col-->
+    </div><!--row-->
+    <div class="row">
+      <div class="col-md-12">
+        <div id="search" class="well search-well">
+          <ul id="track-list" class="search-results">
+          </ul>
+        </div>
+      </div><!--col-->
+    </div><!--row-->
+  </div>
+</div><!--stream-page-->

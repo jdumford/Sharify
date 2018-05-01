@@ -9,7 +9,6 @@ $(document).ready(function(){
     // database call to get queue song ids
     showQueue();
     changeVolume(50);
-    //getsong();
     //displayStreams([access_token]);
 
 });
@@ -27,19 +26,6 @@ function playlistToggle(name, index){
 	});
     }
     $(name).toggleClass('collapsed')
-}
-
-function getsong(){
-  $.ajax({
-    url: 'https://35.171.97.26:8888/getsong',
-    type: "GET",
-    dataType: 'jsonp',
-    success: function(data) {
-    //   console.log(data);
-    },
-    error: function (xhr, ajaxOptions, thrownError){
-      console.log(xhr.status);
-    }});
 }
 
 //makes a call to the backend to get the information for friends currently streaming
@@ -276,6 +262,11 @@ $("#stream-tab-playlist").click(function() {
     getCurrentUserPlaylists();
 });
 
+ $("#track-list, #playlist-list").on('click', '.plus', function() {
+      var songID = $(this).parent().data('songid');
+      addToQueue(songID)
+    });
+
 $("#track-list, #playlist-list").on('click', '.search-play', function() {
     var songID = $(this).parent().data('songid');
     pause();
@@ -305,7 +296,6 @@ $('#volumeSlider').mouseup(function(){
     changeVolume($(this).val());
 });
 
-
  async function getQueue(){
   var response = await $.ajax({
     url: 'https://34.224.122.69:8888/getqueue',
@@ -318,5 +308,21 @@ $('#volumeSlider').mouseup(function(){
  async function showQueue(){
   var queueIDs = await getQueue()
   getTracksFromIDs(queueIDs)
+ }
+
+ function addToQueue(songID){
+   $.ajax({
+     url: 'https://34.224.122.69:8888/addToQueue',
+     type: "GET",
+     headers: headers,
+     data: {
+       id: songID
+     },
+     success: function(data) {
+       //console.log(data)
+     },
+     error: function (xhr, ajaxOptions, thrownError){
+       console.log(xhr.status);
+   }});
  }
 

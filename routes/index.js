@@ -17,24 +17,36 @@ var webtoken = 'webplayer-token';
 
 //get request for a view named index
 router.get('/', function(req, res){
-        if (!req.cookies[webtoken]){
-         res.redirect('/login');
-        }
-        else{
-         res.render('index');
-         console.log('home');
-        }
+    if (!req.cookies[webtoken]){
+        res.redirect('/login');
+    }
+    else{
+        res.render('index');
+        console.log('home');
+    }
 });
 
 
 router.get('/profile', function(req, res){
+    if (!req.cookies[webtoken]){
+        res.redirect('/login');
+    }
+    else{
 	res.render('profile');
-	console.log('profile');
+        console.log('profile');
+    }
+
 });
 
 router.get('/stream', function(req, res){
+    if (!req.cookies[webtoken]){
+        res.redirect('/login');
+    }
+    else{
 	res.render('stream');
 	console.log('stream');
+    }
+
 });
 
 router.get('/login', function(req, res){
@@ -139,11 +151,11 @@ router.get("/friends-streaming", function (req, res) {
     var token_count = Object.keys(tokens).length
     console.log(token_count)
     var streams = []
+    request.debug = true
     for(var t in tokens){
-	console.log(tokens[t])
+	console.log(tokens[t].access)
 	options.headers.Authorization = 'Bearer ' + tokens[t].access;
 	request.get(options, function(error, response, body) {
-	    console.log(response)
 	    var stream = {
 		name: body['item']['name'],
 		artist: body.item.artists[0].name,

@@ -12,7 +12,23 @@ $(document).ready(function(){
     //changeVolume(50);
     //getsong();
     //displayStreams([access_token]);
+
 });
+
+function playlistToggle(name, index){
+    console.log(name)
+    var pid = $(name).attr('data-playlistid');
+    if($(name).hasClass('collapsed')){
+	getPlaylistTracks(pid, index);
+    }else{
+	$('.search-item').each(function(){
+	    if($(this).attr('data-playlistid') == pid){
+		$(this).slideUp();
+	    }
+	});
+    }
+    $(name).toggleClass('collapsed')
+}
 
 function getsong(){
   $.ajax({
@@ -58,7 +74,7 @@ async function getStreamData(){
 }
 
 
-  function searchTracks(query) {
+function searchTracks(query) {
     $.ajax({
         url: 'https://api.spotify.com/v1/search',
         type: "GET",
@@ -68,217 +84,221 @@ async function getStreamData(){
             type: 'track'
         },
         success: function (response) {
-          var images = "<img src=\"/media/play.png\" class=\"search-icons search-play\">"
-          + "<img src=\"/media/plus.png\" class=\"search-icons plus\">"
-          var trackList = ""
-          for (i = 0; i < 5; i++) {
-            var track = response["tracks"]["items"][i];
-            var songID = track["id"];
-            var songName = track["name"];
-            var songArtist = track["artists"][0]["name"];
-            trackList += "<li class=\"search-item\" data-songid=\"" + songID + "\">"
-            + images + songName + " - " + songArtist + "</li>"
-          }
-          if (response["tracks"]["items"].length > 0){
-            $('#search').removeClass('search-well')
-          }
-          else if ($('#search').hasClass('search-well')){
-            $('#search').removeClass('search-well')
-          }
-
-          $('#track-list').html(trackList);
+            var images = "<img src=\"/media/play.png\" class=\"search-icons search-play\">"
+		+ "<img src=\"/media/plus.png\" class=\"search-icons plus\">"
+            var trackList = ""
+            for (i = 0; i < 5; i++) {
+		var track = response["tracks"]["items"][i];
+		var songID = track["id"];
+		var songName = track["name"];
+		var songArtist = track["artists"][0]["name"];
+		trackList += "<li class=\"search-item\" data-songid=\"" + songID + "\">"
+		    + images + songName + " - " + songArtist + "</li>"
+            }
+            if (response["tracks"]["items"].length > 0){
+		$('#search').removeClass('search-well')
+            }
+            else if ($('#search').hasClass('search-well')){
+		$('#search').removeClass('search-well')
+            }
+	    
+            $('#track-list').html(trackList);
         },
         error: function (xhr, ajaxOptions, thrownError){
-          console.log(xhr.status);
+            console.log(xhr.status);
         }});
-    }
+}
 
-    function getCurrentUserPlaylists(){
-        $.ajax({
+function getCurrentUserPlaylists(){
+    $.ajax({
         url: 'https://api.spotify.com/v1/me/playlists',
         type: "GET",
         headers: headers,
         cache: false,
         success: function(data) {
-          var playlistName = data["items"][0]["name"];
-          var playlistID = data["items"][0]["id"];
-          var playlists = ""
-
-          for (var i in data["items"]) {
-            var playlist = data["items"][i]
-            var trackList = '<ul class=\"search-results playlist-songs\" id=\"pl-' + String(i) + '-tracks' + '\"></ul>'
-            playlists += "<li class=\"search-item playlist\" id=\"pl-" + String(i) + "\" data-playlistid=\""
-            + playlist["id"] + "\">" + playlist["name"] + trackList + "</li>"
-          }
-          $('#playlist-list').html(playlists);
+            var playlistName = data["items"][0]["name"];
+            var playlistID = data["items"][0]["id"];
+            var playlists = ""
+	    
+            for (var i in data["items"]) {
+		var playlist = data["items"][i]
+		var trackList = '<ul class="search-results playlist-songs" id="pl-' + String(i) + '-tracks' + '"></ul>'
+		playlists += "<li class=\"playlist-title playlist\" id=\"pl-" + String(i) + "\" data-playlistid=\"" +
+		    playlist["id"] + '"><div class="playlist-name collapsed" data-playlistid="' + data["items"][i]["id"] + 
+		    '" onclick="playlistToggle(this, \'pl-' + String(i) + '\')">' + 
+		    playlist["name"] + "</div>" + trackList + "</li>";
+            }
+            $('#playlist-list').html(playlists);
         },
         error: function (xhr, ajaxOptions, thrownError){
-          console.log(xhr.status);
+            console.log(xhr.status);
         }});
-      }
+}
 
 
-  function getCurrentUser(){
+function getCurrentUser(){
     $.ajax({
-      url: 'https://api.spotify.com/v1/me',
-      type: "GET",
-      headers: headers,
-      success: function(data){
-        $('#username').html(data['display_name'])
-      },
-      error: function (xhr, ajaxOptions, thrownError){
-        console.log(xhr.status);
-      }});
-    }
+	url: 'https://api.spotify.com/v1/me',
+	type: "GET",
+	headers: headers,
+	success: function(data){
+            $('#username').html(data['display_name'])
+	},
+	error: function (xhr, ajaxOptions, thrownError){
+            console.log(xhr.status);
+	}});
+}
 
 
-    async function getPlaylistTracks(playlistID, index){
-      var userID = await getUserID();
-
-      $.ajax({
+async function getPlaylistTracks(playlistID, index){
+    var userID = await getUserID();
+    
+    $.ajax({
         url: 'https://api.spotify.com/v1/users/' + userID + '/playlists/' + playlistID + '/tracks',
         type: "GET",
         headers: headers,
         success: function(data) {
-          showPlaylistTracks(data, index)
+            showPlaylistTracks(data, index, playlistID)
         },
         error: function (xhr, ajaxOptions, thrownError){
-          console.log(xhr.status);
+            console.log(xhr.status);
         }});
-    }
+}
 
-    async function getUserID(){
-      var response = await $.ajax({
-          url: 'https://api.spotify.com/v1/me',
-          type: "GET",
-          headers: headers
-        });
-        return response["id"];
-      }
+async function getUserID(){
+    var response = await $.ajax({
+        url: 'https://api.spotify.com/v1/me',
+        type: "GET",
+        headers: headers
+    });
+    return response["id"];
+}
 
-      function showPlaylistTracks(data, index){
-        var images = "<img src=\"/media/play.png\" class=\"search-icons search-play\">"
+function showPlaylistTracks(data, index, playlistID){
+    var images = "<img src=\"/media/play.png\" class=\"search-icons search-play\">"
         + "<img src=\"/media/plus.png\" class=\"search-icons plus\">"
+    
+    var tracks = ""
+    for (var i in data["items"]) {
+        var track = data["items"][i]["track"]
+        var songID = track["id"]
+        var songName = track["name"]
+        var songArtist = track["artists"][0]["name"];
+        tracks += '<li data-playlistid="' + playlistID + '" class="search-item" data-songid="' + songID + '">' +
+            images + songName + " - " + songArtist + "</li>";
+    }
+    
+    var elementID = String(index) + '-tracks'
+    $('#' + elementID).html(tracks);
+    $('#' + elementID).slideDown();
+}
 
-        var tracks = ""
-        for (var i in data["items"]) {
-          var track = data["items"][i]["track"]
-          var songID = track["id"]
-          var songName = track["name"]
-          var songArtist = track["artists"][0]["name"];
-          tracks += "<li class=\"search-item\" data-songid=\"" + songID + "\">"
-          + images + songName + " - " + songArtist + "</li>"
-          }
-
-          var elementID = String(index) + '-tracks'
-          $('#' + elementID).html(tracks);
-          $('#' + elementID).slideDown();
-        }
-
-    function pause(){
-      $.ajax({
+function pause(){
+    $.ajax({
         url: 'https://api.spotify.com/v1/me/player/pause',
         type: "PUT",
         headers: headers,
         success: function(data) {
-          // console.log("success");
+            // console.log("success");
         },
         error: function (xhr, ajaxOptions, thrownError){
-          console.log(xhr.status);
+            console.log(xhr.status);
         }});
-      }
+}
 
-    function changeVolume(value){
-      $.ajax({
+function changeVolume(value){
+    $.ajax({
         url: 'https://api.spotify.com/v1/me/player/volume?volume_percent=' + value,
         type: "PUT",
         headers: headers,
         success: function(data) {
-          // console.log("success");
+            // console.log("success");
         },
         error: function (xhr, ajaxOptions, thrownError){
-          console.log(xhr.status);
+            console.log(xhr.status);
         }});
-      }
+}
 
-   // trackIDs is array of strings
-   function getTracksFromIDs(trackIDs){
-     $.ajax({
-       url: 'https://api.spotify.com/v1/tracks',
-       type: "GET",
-       headers: headers,
-       data: {
-         ids: trackIDs.join()
-       },
-       success: function(data) {
-         updateQueueDisplay(data["tracks"])
-       },
-       error: function (xhr, ajaxOptions, thrownError){
-         console.log(xhr.status);
-     }});
-   }
+// trackIDs is array of strings
+function getTracksFromIDs(trackIDs){
+    $.ajax({
+	url: 'https://api.spotify.com/v1/tracks',
+	type: "GET",
+	headers: headers,
+	data: {
+            ids: trackIDs.join()
+	},
+	success: function(data) {
+            updateQueueDisplay(data["tracks"])
+	},
+	error: function (xhr, ajaxOptions, thrownError){
+            console.log(xhr.status);
+	}});
+}
 
-   function updateQueueDisplay(songs){
-       var songdisplay = ""
-       for (var i in songs) {
-	   var songname = songs[i]["name"]
-	   var songartist = songs[i]["artists"][0]["name"]
-	   var songid = songs[i]["id"]
-	   songdisplay += '<div class="row queue-item" id="queue-' + String(i) + '" data-queuesongid="' +
-               songid + '"><div class="col-xs-8" style="padding-top:5px"><div class="queue-info">' + songname + 
-	       '</div><div class="queue-info">' + songartist + '</div></div>' +
-	       '<div class="col-xs-4 text-right"><div style="text-align:center">' + 
-	       '<img class="vote-icon" src="/media/upvote.png"><div class="votes">' + '0' + 
-	       '</div><img class="vote-icon" src="/media/downvote.png"></div></div></div>';
-       }
-       $('#queue').append(songdisplay)
-       $('.queue-info').autoTextTape();
-   }
+function updateQueueDisplay(songs){
+    var songdisplay = ""
+    for (var i in songs) {
+	var songname = songs[i]["name"]
+	var songartist = songs[i]["artists"][0]["name"]
+	var songid = songs[i]["id"]
+	songdisplay += '<div class="row queue-item" id="queue-' + String(i) + '" data-queuesongid="' +
+            songid + '"><div class="col-xs-8" style="padding-top:5px"><div class="queue-info">' + songname + 
+	    '</div><div class="queue-info">' + songartist + '</div></div>' +
+	    '<div class="col-xs-4 text-right"><div style="text-align:center">' + 
+	    '<img class="vote-icon" src="/media/upvote.png"><div class="votes">' + '0' + 
+	    '</div><img class="vote-icon" src="/media/downvote.png"></div></div></div>';
+    }
+    $('#queue').append(songdisplay)
+    $('.queue-info').autoTextTape();
+}
 
 
-    $("#play-button").click(function() {
-      pause();
-      play();
-      $(this).addClass('hidden');
-      $("#pause-button").removeClass('hidden');
-    });
+$("#play-button").click(function() {
+    pause();
+    play();
+    $(this).addClass('hidden');
+    $("#pause-button").removeClass('hidden');
+});
 
-    $("#pause-button").click(function() {
-      pause();
-      $(this).addClass('hidden');
-      $("#play-button").removeClass('hidden');
-    });
+$("#pause-button").click(function() {
+    pause();
+    $(this).addClass('hidden');
+    $("#play-button").removeClass('hidden');
+});
 
-    $("#stream-tab-playlist").click(function() {
-      getCurrentUserPlaylists();
-    });
+$("#stream-tab-playlist").click(function() {
+    getCurrentUserPlaylists();
+});
 
-    $("#track-list, #playlist-list").on('click', '.search-play', function() {
-      var songID = $(this).parent().data('songid');
-      pause();
-      play(songID);
-    });
+$("#track-list, #playlist-list").on('click', '.search-play', function() {
+    var songID = $(this).parent().data('songid');
+    pause();
+    play(songID);
+});
 
-    $("#playlist-list").on('click', '.playlist', function() {
-	if ($(this).children().is(':visible')){
-            $(this).children().slideUp();
-	}
-	else{
-	    $('.playlist').children().slideUp();
-            var playlistID = $(this).data('playlistid');
-            var index = $(this).attr('id');
-            getPlaylistTracks(playlistID, index);
-	}
-    });
 
-    $("#search-form").submit(function(e){
-      e.preventDefault();
-      searchTracks(document.getElementById('query').value);
-    });
+/*
+$("#playlist-list").on('click', '.playlist', function() {
+    if ($(this).children().is(':visible')){
+        $(this).children().slideUp();
+    }
+    else{
+	$('.playlist').children().slideUp();
+        var playlistID = $(this).data('playlistid');
+        var index = $(this).attr('id');
+        getPlaylistTracks(playlistID, index);
+    }
+});
+*/
+$("#search-form").submit(function(e){
+    e.preventDefault();
+    searchTracks(document.getElementById('query').value);
+});
 
-    $('#volumeSlider').mouseup(function(){
-      changeVolume($(this).val());
-    });
+$('#volumeSlider').mouseup(function(){
+    changeVolume($(this).val());
+});
 
 function getQueue(){
   $.ajax({

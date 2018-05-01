@@ -201,11 +201,22 @@ ul {
 	display: none;
 }
 
+.playlist-title{
+    margin: 0;
+    padding: 10px;
+    border-radius: 5px;
+    cursor:pointer;
+}
+
 .search-item {
     margin: 0;
     padding: 10px;
     border-radius: 5px;
     cursor:pointer;
+}
+
+.search-item:hover{
+    background-color:rgb(150, 150, 150);
 }
 
 .playlist-songs{

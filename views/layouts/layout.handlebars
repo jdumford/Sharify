@@ -20,10 +20,10 @@
 
     <!--Top Bar-->
     <div id="top-bar">
-      <a href="/"><img id="top-icon" src="/media/music_icon.png"></a>
+      <img id="top-icon" src="/media/music_icon.png" onclick="pageChanger(1)">
       <div id="top-title">Music Sharer</div>
       <div id="top-right">
-        <div class="text-medium" style="display:inline"><a id="username" href="/profile">User Name</a></div>
+        <div class="text-medium" style="display:inline" id="username" onclick="pageChanger(3)">User Name</div>
         <a href="./logout" style="display:inline"><button id="top-start-stream" type="button" class="btn btn-default">Log Out</button></a>
       </div>
     </div>
@@ -76,9 +76,83 @@
 
     </div><!--queue-bar-->
 
-    <!--Main Panel-->
+
+
+
+
+    <!-- ---------------Main Panel----------------- -->
     <div id="main-panel" class="container-fluid">
-      {{{body}}}
+      <!--Home Page-->
+      <div id="home-page">
+	<div class="row">
+	  <div class="col-md-3 col-md-offset-9 text-right">
+	    <button id="top-start-stream" type="button" class="btn btn-default" onclick="pageChanger(2)">Start Stream</button>
+	  </div>
+	</div>
+	<div class="text-header">Friends Streams</div>
+	<div class="row">
+	  <div id="friends-streams"></div>
+	</div>
+      </div><!--home-page-->
+
+
+
+
+
+      <!--Manage Stream Page-->
+      <div id="stream-page">
+	<div class="text-header">Manage Stream</div>
+	<ul class="nav nav-tabs">
+	  <li id="stream-tab-playlist" role="presentation text-medium" class="active"><a href="#" onclick="streamManageTab(1)">Select Playlist</a></li>
+	  <li id="stream-tab-search" role="presentation text-medium"><a href="#" onclick="streamManageTab(2)">Search Songs</a></li>
+	</ul>
+
+	<!--Select Playlist-->
+	<div id="stream-playlist">
+	  <div class="well">
+	    <ul id="playlist-list" class="search-results">
+	    </ul>
+	  </div>
+	</div>
+	
+	<!--Search Songs-->
+	<div id="stream-search">
+	  <div class="row">
+	    <div class="col-md-4">
+              <div class="input-group">
+		<form id="search-form">
+		  <input type="text" id="query" value="" placeholder="Search..." class="form-control" >
+		</form>
+              </div> <!--search-form-->
+	    </div><!--col-->
+	  </div><!--row-->
+	  <div class="row">
+	    <div class="col-md-12">
+              <div id="search" class="well search-well">
+		<ul id="track-list" class="search-results">
+		</ul>
+              </div>
+	    </div><!--col-->
+	  </div><!--row-->
+	</div>
+      </div><!--stream-page-->
+
+
+
+
+      <!--Profile Page-->
+      <div id="profile-page" class="container-fluid">
+	<div class="row">
+	  <div class="col-sm-2">
+	    <img id="prof-pic">
+	  </div>
+	  <div class="col-sm-10">
+	    <div id="prof-username" class="text-header"></div>
+	  </div>
+	</div>
+      </div>
+
+
     </div><!--main-panel-->
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->

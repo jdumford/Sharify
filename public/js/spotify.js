@@ -54,10 +54,13 @@ async function getStreamData(){
 	success: function(streams) {
 	    for(var i in streams){
 		console.log(streams[i])
-		var s = '<div class="stream-row"><div class="col-sm-6 col-lg-7"><div style="font-size: 18pt">' +
-		    'Streamer Name' + '</div><div>' + 'This is a description'  + '</div></div>' +
-		    '<div class="col-sm-3 col-lg-2" style="text-align:center"><img class="stream-img" src="' + 
-		    streams[i].album_cover + '"></div><div class="col-sm-3"><div class="scroll-info">' + 
+		var s = '<div class="stream-row"><div class="col-sm-2 col-md-1">' + 
+		    '<img style="width: 40px" src="/media/play.png"></div><div class="col-sm-5 col-md-6">' + 
+		    '<div style="font-size: 18pt" onclick="renderProfile(\'' + streams[i].streamerID + 
+		    '\')">' + 'Streamer Name' + '</div><div>' + 'This is a description'  + '</div></div>' +
+		    '<div class="col-sm-2" style="text-align:center; border-left: 1px solid black;">' + 
+		    '<img class="stream-img" src="' + streams[i].album_cover + 
+		    '"></div><div class="col-sm-3"><div class="scroll-info">' + 
 		    'Currently Playing</div><div class="scroll-info">' + streams[i].name + ' - ' + 
 		    streams[i].artist + '</div><div class="scroll-info">Current Listeners: ' + 
 		    '7' + '</div></div></div>';

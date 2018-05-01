@@ -130,6 +130,7 @@ body{
 
 /*Manage Stream page styles*/
 #stream-page{
+    display:none;
 }
 
 #stream-search{
@@ -149,8 +150,13 @@ body{
 
 /*Profile page styles*/
 #profile-page{
+    display: none;
 }
 
+#prof-pic{
+    height:100px;
+    border-radius: 50%;
+}
 
 /*Login Page styles*/
 #login-background{

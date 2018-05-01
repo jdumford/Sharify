@@ -112,7 +112,6 @@ router.get('/callback', function(req, res) {
 	    json: true
 	};
 	request.get(options, function(error, response, user_info) {
-	    console.log(user_info)
 	    var tokens = req.app.get('tokens');
 	    tokens[user_info['id']] = {
 		'access': body.access_token,
@@ -134,45 +133,54 @@ router.get('/callback', function(req, res) {
   }
 });
 
-
-
-//uses access tokens of streaming friends to get info about what they're playing
-router.get("/friends-streaming", function (req, res) {
-    var tokens = req.app.get('tokens');
+function getStream(res, t, tokens, counter, streams){
+    var token_count = Object.keys(tokens).length
     var options = {
 	url: 'https://api.spotify.com/v1/me/player/currently-playing',
 	type: "GET",
 	headers: {
 	    'Accept': 'application/json',
 	    'Content-Type':'application/json'
-
 	},
 	json:true
     }
+    console.log(tokens)
+    console.log(t)
+    options.headers.Authorization = 'Bearer ' + tokens[t].access;
+    request.get(options, function(error, response, body) {
+	if (body == null) {
+	}else{
+	    console.log(body)
+	    var stream = {
+		streamerID: t,
+		name: body['item']['name'],
+		artist: body.item.artists[0].name,
+		album: body.item.album.name,
+		album_cover: body.item.album.images[0].url
+	    }
+	    streams.push(stream)
+	    console.log(streams)
+	}
+	
+	if(counter == token_count){
+	    res.jsonp(streams);
+	}
+    });
+}
+
+
+//uses access tokens of streaming friends to get info about what they're playing
+router.get("/friends-streaming", function (req, res) {
+    var tokens = req.app.get('tokens');
     var counter = 0;
-    var token_count = Object.keys(tokens).length
     var streams = []
+    var done = false
     for(var t in tokens){
-	options.headers.Authorization = 'Bearer ' + tokens[t].access;
-	request.get(options, function(error, response, body) {
-	    if (body == null) {
-	    }else{
-		var stream = {
-		    name: body['item']['name'],
-		    artist: body.item.artists[0].name,
-		    album: body.item.album.name,
-		    album_cover: body.item.album.images[0].url
-		}
-		streams.push(stream)
-	    }
-	    counter += 1
-	    if(counter == token_count){
-		res.jsonp(streams);
-	    }
-	});
+	counter += 1
+	getStream(res, t, tokens, counter, streams);
     }
-
-
+    //console.log(streams);
+    //res.jsonp(streams);
 
 
 });

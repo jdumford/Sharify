@@ -5,6 +5,7 @@ function pageChanger(page_index){
 	$('#stream-page').css('display', 'none');
 	$('#profile-page').css('display', 'none');
 	$('#home-page').css('display', 'block');
+	getStreamData();
 	break;
 	//Manage Streams Page
     case 2:
@@ -45,6 +46,39 @@ function renderProfile(userID){
 	error: function (xhr, ajaxOptions, thrownError){
             console.log(xhr.status);
 	}});
+}
+
+//when you click the start stream button
+function streamOptions(){
+    $('#stream-start-form').css("display", "block");
+    $('#mask').css("display", "block");
+    if(getCookie('session') != ""){
+	pause();
+    }
+
+}
+
+function cancelStream(){
+    $('#stream-start-form').css("display", "none");
+    $('#mask').css("display", "none");
+}
+
+//when you click the start stream button in the menu
+function startStream(){
+    $('#main-stream-options-button').css("display", "none");
+    $('#stream-start-form').css("display", "none");
+    $('#mask').css("display", "none");
+    pageChanger(2);
+    //set the opions for a stream
+    var description = $('#stream-description').val();
+    var access = $("input:radio[name='stream-access']:checked").val();
+    console.log(description)
+    console.log(access)
+}
+
+//when you click the play button on a stream
+function joinStream(){
+
 }
 
 function streamManageTab(tab_index){

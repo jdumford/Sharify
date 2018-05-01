@@ -14,7 +14,6 @@ $(document).ready(function(){
 });
 
 function playlistToggle(name, index){
-    console.log(name)
     var pid = $(name).attr('data-playlistid');
     if($(name).hasClass('collapsed')){
 	getPlaylistTracks(pid, index);
@@ -38,19 +37,20 @@ async function getStreamData(){
 	type: "GET",
 	dataType: 'jsonp',
 	success: function(streams) {
+	    $('#main-friends-streams').html("")
 	    for(var i in streams){
-		console.log(streams[i])
 		var s = '<div class="stream-row"><div class="col-sm-2 col-md-1">' + 
 		    '<img style="width: 40px" src="/media/play.png"></div><div class="col-sm-5 col-md-6">' + 
 		    '<div style="font-size: 18pt" onclick="renderProfile(\'' + streams[i].streamerID + 
-		    '\')">' + 'Streamer Name' + '</div><div>' + 'This is a description'  + '</div></div>' +
+		    '\')">' + streams[i].streamerName + '</div><div>' + 
+		    'This is a description'  + '</div></div>' +
 		    '<div class="col-sm-2" style="text-align:center; border-left: 1px solid black;">' + 
 		    '<img class="stream-img" src="' + streams[i].album_cover + 
 		    '"></div><div class="col-sm-3"><div class="scroll-info">' + 
 		    'Currently Playing</div><div class="scroll-info">' + streams[i].name + ' - ' + 
 		    streams[i].artist + '</div><div class="scroll-info">Current Listeners: ' + 
 		    '7' + '</div></div></div>';
-		$('#friends-streams').append(s)
+		$('#main-friends-streams').append(s)
 		$('.scroll-info').autoTextTape();
 	    }
 	},
@@ -244,6 +244,9 @@ function getTracksFromIDs(trackIDs){
    }
 
 
+$('#username').click(function(){
+    renderProfile(getCookie('userID'));
+});
 
 $("#play-button").click(function() {
     pause();
@@ -262,10 +265,10 @@ $("#stream-tab-playlist").click(function() {
     getCurrentUserPlaylists();
 });
 
- $("#track-list, #playlist-list").on('click', '.plus', function() {
-      var songID = $(this).parent().data('songid');
-      addToQueue(songID)
-    });
+$("#track-list, #playlist-list").on('click', '.plus', function() {
+    var songID = $(this).parent().data('songid');
+    addToQueue(songID)
+});
 
 $("#track-list, #playlist-list").on('click', '.search-play', function() {
     var songID = $(this).parent().data('songid');

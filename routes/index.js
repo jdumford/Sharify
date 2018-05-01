@@ -116,7 +116,8 @@ router.get('/callback', function(req, res) {
 	    var tokens = req.app.get('tokens');
 	    tokens[user_info['id']] = {
 		'access': body.access_token,
-		'refresh': body.refresh_token
+		'refresh': body.refresh_token,
+		'name': user_info['display_name']
 	    }
 	    req.app.set('tokens', tokens)
 	});
@@ -145,22 +146,19 @@ function getStream(res, t, tokens, counter, streams){
 	},
 	json:true
     }
-    console.log(tokens)
-    console.log(t)
     options.headers.Authorization = 'Bearer ' + tokens[t].access;
     request.get(options, function(error, response, body) {
 	if (body == null) {
 	}else{
-	    console.log(body)
 	    var stream = {
 		streamerID: t,
-		name: body['item']['name'],
+		streamerName: tokens[t].name,
+		name: body.item.name,
 		artist: body.item.artists[0].name,
 		album: body.item.album.name,
 		album_cover: body.item.album.images[0].url
 	    }
 	    streams.push(stream)
-	    console.log(streams)
 	}
 	
 	if(counter == token_count){
@@ -180,9 +178,6 @@ router.get("/friends-streaming", function (req, res) {
 	counter += 1
 	getStream(res, t, tokens, counter, streams);
     }
-    //console.log(streams);
-    //res.jsonp(streams);
-
 
 });
 

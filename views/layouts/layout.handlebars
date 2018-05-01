@@ -23,8 +23,8 @@
       <img id="top-icon" src="/media/music_icon.png" onclick="pageChanger(1)">
       <div id="top-title">Music Sharer</div>
       <div id="top-right">
-        <div class="text-medium" style="display:inline" id="username" onclick="pageChanger(3)">User Name</div>
-        <a href="./logout" style="display:inline"><button id="top-start-stream" type="button" class="btn btn-default">Log Out</button></a>
+        <div class="text-medium" style="display:inline" id="username">User Name</div>
+        <a href="./logout" style="display:inline"><button id="top-logout" type="button" class="btn btn-default">Log Out</button></a>
       </div>
     </div>
 
@@ -86,12 +86,12 @@
       <div id="home-page">
 	<div class="row">
 	  <div class="col-md-3 col-md-offset-9 text-right">
-	    <button id="top-start-stream" type="button" class="btn btn-default" onclick="pageChanger(2)">Start Stream</button>
+	    <button id="main-stream-options-button" type="button" class="btn btn-default" onclick="streamOptions()">Start Stream</button>
 	  </div>
 	</div>
 	<div class="text-header">Friends Streams</div>
 	<div class="row">
-	  <div id="friends-streams"></div>
+	  <div id="main-friends-streams"></div>
 	</div>
       </div><!--home-page-->
 
@@ -100,6 +100,37 @@
 
 
       <!--Manage Stream Page-->
+      <div id="mask"></div>
+      <div id="stream-start-form" class="container-fluid">
+	<div class="row">
+	  <div class="col-sm-12">
+	    <div class="text-header">Start a Stream</div>
+	    <div class="text-medium">Title/Description:</div>
+	    <input type="text" class="form-control" id="stream-description" placeholder="Ex: Dancing by myself!" maxlength="70">
+	    <div class="text-medium">Visibility:</div>
+
+	    <div class="form-check">
+	      <input class="form-check-input" type="radio" name="stream-access" id="stream-access1" value="collaborative" checked>
+	      <label class="form-check-label" for="stream-access1">Collaborative</label>
+	    </div>
+	    <div class="form-check">
+              <input class="form-check-input" type="radio" name="stream-access" id="stream-access2" value="public">
+              <label class="form-check-label" for="stream-access2">Public</label>
+            </div>
+	    <div class="form-check">
+              <input class="form-check-input" type="radio" name="stream-access" id="stream-access3" value="private">
+              <label class="form-check-label" for="stream-access3">Private</label>
+            </div>
+	  </div>
+	</div>
+	<div class="row">
+	  <div class="col-sm-12 text-right">
+	    <button id="main-cancel-stream" type="button" class="btn btn-primary" onclick="cancelStream()">Cancel</button>
+	    <button id="main-start-stream" type="button" class="btn btn-default" onclick="startStream()">Start Stream</button>
+	  </div>
+	</div>
+      </div>
+
       <div id="stream-page">
 	<div class="text-header">Manage Stream</div>
 	<ul class="nav nav-tabs">

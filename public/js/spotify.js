@@ -7,9 +7,8 @@ $(document).ready(function(){
 	getCurrentUserPlaylists();
     }
     // database call to get queue song ids
-    getTracksFromIDs(['0GKlgYoKod155w3erIfFXn', '0AFZnXDUT5qbJboJMZ6zlp'])
-    getQueue();
-    //changeVolume(50);
+    showQueue();
+    changeVolume(50);
     //getsong();
     //displayStreams([access_token]);
 });
@@ -221,6 +220,7 @@ async function getStreamData(){
    function updateQueueDisplay(songs){
        var songdisplay = ""
        for (var i in songs) {
+	 if(songs[i]){
 	   var songname = songs[i]["name"]
 	   var songartist = songs[i]["artists"][0]["name"]
 	   var songid = songs[i]["id"]
@@ -230,7 +230,7 @@ async function getStreamData(){
 	       '<div class="col-xs-4 text-right"><div style="text-align:center">' + 
 	       '<img class="vote-icon" src="/media/upvote.png"><div class="votes">' + '0' + 
 	       '</div><img class="vote-icon" src="/media/downvote.png"></div></div></div>';
-       }
+       }}
        $('#queue').append(songdisplay)
        $('.queue-info').autoTextTape();
    }
@@ -280,15 +280,18 @@ async function getStreamData(){
       changeVolume($(this).val());
     });
 
-function getQueue(){
-  $.ajax({
+
+ async function getQueue(){
+  var response = await $.ajax({
     url: 'https://35.171.97.26:8888/getqueue',
     type: "GET",
-    dataType: 'jsonp',
-    success: function(data) {
-       console.log(data);
-    },
-    error: function (xhr, ajaxOptions, thrownError){
-      console.log(xhr.status);
-    }});
-}
+    dataType: 'jsonp'
+  });
+  return response;
+ }
+
+ async function showQueue(){
+  var queueIDs = await getQueue()
+  getTracksFromIDs(queueIDs)
+ }
+

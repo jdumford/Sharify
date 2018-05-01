@@ -112,6 +112,7 @@ router.get('/callback', function(req, res) {
 	    json: true
 	};
 	request.get(options, function(error, response, user_info) {
+	    console.log(user_info)
 	    var tokens = req.app.get('tokens');
 	    tokens[user_info['id']] = {
 		'access': body.access_token,
@@ -144,27 +145,27 @@ router.get("/friends-streaming", function (req, res) {
 	headers: {
 	    'Accept': 'application/json',
 	    'Content-Type':'application/json'
+
 	},
 	json:true
     }
     var counter = 0;
     var token_count = Object.keys(tokens).length
-    console.log(token_count)
     var streams = []
-    request.debug = true
     for(var t in tokens){
-	console.log(tokens[t].access)
 	options.headers.Authorization = 'Bearer ' + tokens[t].access;
 	request.get(options, function(error, response, body) {
-	    var stream = {
-		name: body['item']['name'],
-		artist: body.item.artists[0].name,
-		album: body.item.album.name,
-		album_cover: body.item.album.images[0].url
+	    if (body == null) {
+	    }else{
+		var stream = {
+		    name: body['item']['name'],
+		    artist: body.item.artists[0].name,
+		    album: body.item.album.name,
+		    album_cover: body.item.album.images[0].url
+		}
+		streams.push(stream)
 	    }
-	    streams.push(stream)
 	    counter += 1
-	    console.log(counter)
 	    if(counter == token_count){
 		res.jsonp(streams);
 	    }

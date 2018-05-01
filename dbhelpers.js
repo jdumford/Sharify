@@ -3,36 +3,115 @@ var async = require('async');
 var oracledb = require('oracledb');
 var dbConfig = require('./dbconfig.js');
 
-//this is actually what can be moved around and copied
-oracledb.createPool(
-  dbConfig,
-  function(err, pool) {
-    if (err)
-      console.error(err.message)
-    else
-      getAllStreams(pool);
-  });
-
-
-//function to make asynchronous calls to get livestreams
-var getAllStreams = function(pool) {
-  async.waterfall(
-    [
-      function(cb) {
-        pool.getConnection(cb);
-      },
-      // Tell the DB to buffer DBMS_OUTPUT
-      enableDbmsOutput,
-      // Method 1: Fetch a line of DBMS_OUTPUT at a time
-      getLiveStreams,
-      fetchDbmsOutputLine,
-    ],
-    function (err, conn) {
-      if (err) { console.error("In waterfall error cb: ==>", err, "<=="); }
-      conn.release(function (err) { if (err) console.error(err.message); });
+function getProcResults(query, params, res){
+    var dbResults = []
+    function compileResults(result){
+      if (result){
+        dbResults.push(result)
+      } else {
+        return dbResults;
+      }
     }
-  )
-};
+
+    oracledb.createPool(dbConfig, function(err, pool) {
+      if (err)
+      console.error(err.message)
+      else{
+        doit(pool)
+      }
+    });
+
+
+    var doit = function(pool) {
+      async.waterfall(
+        [
+          function(cb) {
+            pool.getConnection(cb);
+          },
+          enableDbmsOutput,
+          query(params),
+          fetchDbmsOutputLine,
+        ],
+        function (err, conn, result) {
+          if (err) { console.error("In waterfall error cb: ==>", err, "<=="); }
+          conn.release(function (err) { if (err) console.error(err.message); });
+          res.jsonp(result)
+        }
+      )
+    };
+
+      var fetchDbmsOutputLine = function (conn, cb) {
+        conn.execute(
+          "begin dbms_output.get_line(:ln, :st); end;",
+          { ln: { dir: oracledb.BIND_OUT, type:oracledb.STRING, maxSize: 32767 },
+          st: { dir: oracledb.BIND_OUT, type:oracledb.NUMBER } },
+          function(err, result) {
+            if (err) {
+              return cb(err, conn, null);
+            }
+            else if (result.outBinds.st == 1) {
+              compileResults(null);
+              return cb(null, conn, dbResults);
+            }
+            else {
+              compileResults(result.outBinds.ln)
+              return fetchDbmsOutputLine(conn, cb);
+            }
+          });
+        }
+}
+
+function getFuncResult(query,params, res){
+    function getResults(result){
+        return cb(null, conn, result);
+    }
+    oracledb.createPool(dbConfig, function(err, pool) {
+      if (err)
+      console.error(err.message)
+      else{
+        doit(pool)
+      }
+    });
+
+    var doit = function(pool) {
+      async.waterfall(
+        [
+          function(cb) {
+            pool.getConnection(cb);
+          },
+          getResult(query(params))
+        ],
+        function (err, conn, result) {
+          if (err) { console.error("In waterfall error cb: ==>", err, "<=="); }
+          conn.release(function (err) { if (err) console.error(err.message); });
+          res.jsonp(result)
+        }
+      )
+    };
+
+}
+
+function ExecuteQuery(query, params, res){
+    oracledb.createPool(dbConfig, function(err, pool) {
+      if (err)
+      console.error(err.message)
+      else{
+        doit(pool)
+      }
+    });
+
+    var doit = function(pool) {
+      async.waterfall(
+        [
+          function(cb) {
+            pool.getConnection(cb);
+          },
+          query(params)
+        ]
+      )
+    };
+}
+
 
 
 //Helper "SET SERVEROUTPUT ON"
@@ -41,24 +120,6 @@ var enableDbmsOutput = function (conn, cb) {
     "begin dbms_output.enable(null); end;",
     function(err) { return cb(err, conn) });
 }
-//Helper function to get multiple returns from PL/SQL procedures (prints to console)
-var fetchDbmsOutputLine = function (conn, cb) {
-  conn.execute(
-    "begin dbms_output.get_line(:ln, :st); end;",
-    { ln: { dir: oracledb.BIND_OUT, type:oracledb.STRING, maxSize: 32767 },
-      st: { dir: oracledb.BIND_OUT, type:oracledb.NUMBER } },
-    function(err, result) {
-      if (err) {
-        return cb(err, conn);
-      } else if (result.outBinds.st == 1) {
-        return cb(null, conn);  // no more output
-      } else {
-        console.log(result.outBinds.ln);
-        return fetchDbmsOutputLine(conn, cb);
-      }
-    });
-  }
-
 
 function doRelease(connection) {
   connection.close(
@@ -86,8 +147,8 @@ var getUserPrivacy = function (conn, cb, uid) {
           doRelease(connection);
           return;
         }
-   	console.log(result.outBinds);
         doRelease(connection);
+   	return result.outBinds;
       });
 }
 
@@ -109,8 +170,8 @@ var getStreamHostID = function (conn, cb, stid) {
           doRelease(connection);
           return;
         }
-   	console.log(result.outBinds);
         doRelease(connection);
+   	return result.outBinds;
       });
 }
 
@@ -131,8 +192,8 @@ var getStreamDescription = function (conn, cb, stid) {
           doRelease(connection);
           return;
         }
-   	console.log(result.outBinds);
         doRelease(connection);
+   	return result.outBinds;
       });
 }
 
@@ -153,8 +214,8 @@ var getStreamUAccess = function (conn, cb, stid) {
           doRelease(connection);
           return;
         }
-   	console.log(result.outBinds);
         doRelease(connection);
+   	return result.outBinds;
       });
 }
 
@@ -175,8 +236,8 @@ var getStreamLiveCount = function (conn, cb, stid) {
           doRelease(connection);
           return;
         }
-   	console.log(result.outBinds);
         doRelease(connection);
+   	return result.outBinds;
       });
 }
 
@@ -197,8 +258,8 @@ var getFollowersCount = function (conn, cb, uid) {
           doRelease(connection);
           return;
         }
-   	console.log(result.outBinds);
         doRelease(connection);
+   	return result.outBinds;
       });
 }
 
@@ -219,8 +280,8 @@ var getFolloweesCount = function (conn, cb, id) {
           doRelease(connection);
           return;
         }
-   	console.log(result.outBinds);
         doRelease(connection);
+   	return result.outBinds;
       });
 }
 
@@ -407,6 +468,45 @@ var addtoQueue = function (conn, cb, stid, sid) {
   conn.execute(
     "begin "
      + "setPack.addtoQueue(:p1, :p2);"
+     + "end;",
+   bindvars,
+    function(err) { return cb(err, conn) });
+}
+
+//addUser
+var addUser = function (conn, cb, uid) {
+   var bindvars = {
+      p1:  uid
+   };
+  conn.execute(
+    "begin "
+     + "setPack.addUser(:p1);"
+     + "end;",
+   bindvars,
+    function(err) { return cb(err, conn) });
+}
+
+//setPrivate
+var add = function (conn, cb, uid) {
+   var bindvars = {
+      p1:  uid
+   };
+  conn.execute(
+    "begin "
+     + "setPack.setPrivate(:p1);"
+     + "end;",
+   bindvars,
+    function(err) { return cb(err, conn) });
+}
+
+//addUser
+var addUser = function (conn, cb, uid) {
+   var bindvars = {
+      p1:  uid
+   };
+  conn.execute(
+    "begin "
+     + "setPack.addUser(:p1);"
      + "end;",
    bindvars,
     function(err) { return cb(err, conn) });

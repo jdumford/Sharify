@@ -1,3 +1,4 @@
+
 function getCookie(cname) {
     var name = cname + "=";
     var decodedCookie = decodeURIComponent(document.cookie);
@@ -39,18 +40,17 @@ function play(trackID){
     }});
 }
 
-
 function onStateChange(state){
-    if (isSongOver(state)){
-	playNextTrackFromQueue();
-    }
-    else{
-	if (state != null){
-	    updateCurrentTrack(state["track_window"]["current_track"])
-	}
-    }
+  if (isSongOver(state)){
+    playedSong([2, state["track_window"]["current_track"]["id"]])
+    playNextTrackFromQueue()
+    playerShowQueue()
+  }
+  else{
+   if (state != null){
+  updateCurrentTrack(state["track_window"]["current_track"])
+ }}
 }
-
 
 var previousTracks = 0;
 function isSongOver(state){
@@ -62,7 +62,6 @@ function isSongOver(state){
   }
   return false;
 }
-
 
 function updateCurrentTrack(current_track){
   $('#current-song-name').html(current_track["name"]);
@@ -91,3 +90,66 @@ function getNextTrack(data){
   play(track)
 }
 
+
+function playedSong(params){
+  console.log(params)
+  $.ajax({
+   url: 'https://35.171.97.26:8888/playedSong',
+   type: "GET",
+   headers: headers,
+   data: {
+     stid: params[0],
+     sid: params[1]
+   },
+   success: function(data) {
+     console.log(data)
+   },
+   error: function (xhr, ajaxOptions, thrownError){
+     console.log(xhr.status);
+   }});
+ }
+
+
+async function playerShowQueue(){
+ var queueIDs = await getQueue()
+ console.log(queueIDs)
+ playerGetTracksFromIDs(queueIDs)
+}
+
+function playerGetTracksFromIDs(trackIDs){
+if (trackIDs){
+   $.ajax({
+       url: 'https://api.spotify.com/v1/tracks',
+       type: "GET",
+       headers: headers,
+       data: {
+           ids: trackIDs.join()
+       },
+       success: function(data) {
+           playerUpdateQueueDisplay(data["tracks"])
+       },
+       error: function (xhr, ajaxOptions, thrownError){
+           console.log(xhr.status);
+       }});
+}}
+
+function playerUpdateQueueDisplay(songs){
+     var songdisplay = ""
+     for (var i in songs) {
+       if(songs[i]){
+         var songname = songs[i]["name"]
+         var songartist = songs[i]["artists"][0]["name"]
+         var songid = songs[i]["id"]
+         songdisplay += '<div class="row queue-item" id="queue-' + String(i) +
+             '"><div class="col-xs-8" style="padding-top:5px"><div class="queue-info">' + songname +
+             '</div><div class="queue-info">' + songartist + '</div></div>' +
+             '<div class="col-xs-4 text-right"><div style="text-align:center">' +
+             '<img class="upvote-icon" data-queuesongid="' +
+              songid + '" src="/media/upvote.png"><div class="votes">' + '0' +
+             '</div><img class="downvote-icon" src="/media/downvote.png"></div></div></div>';
+     }}
+
+     $('.queue-item').remove()
+     $('#queue').append(songdisplay)
+     $('.queue-info').autoTextTape();
+ }

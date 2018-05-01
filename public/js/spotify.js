@@ -224,25 +224,24 @@ function getTracksFromIDs(trackIDs){
 	}});
 }
 
-
    function updateQueueDisplay(songs){
        var songdisplay = ""
        for (var i in songs) {
-	 if(songs[i]){
-	   var songname = songs[i]["name"]
-	   var songartist = songs[i]["artists"][0]["name"]
-	   var songid = songs[i]["id"]
-	   songdisplay += '<div class="row queue-item" id="queue-' + String(i) + '" data-queuesongid="' +
-               songid + '"><div class="col-xs-8" style="padding-top:5px"><div class="queue-info">' + songname + 
-	       '</div><div class="queue-info">' + songartist + '</div></div>' +
-	       '<div class="col-xs-4 text-right"><div style="text-align:center">' + 
-	       '<img class="vote-icon" src="/media/upvote.png"><div class="votes">' + '0' + 
-	       '</div><img class="vote-icon" src="/media/downvote.png"></div></div></div>';
+         if(songs[i]){
+           var songname = songs[i]["name"]
+           var songartist = songs[i]["artists"][0]["name"]
+           var songid = songs[i]["id"]
+           songdisplay += '<div class="row queue-item" id="queue-' + String(i) +
+               '"><div class="col-xs-8" style="padding-top:5px"><div class="queue-info">' + songname +
+               '</div><div class="queue-info">' + songartist + '</div></div>' +
+               '<div class="col-xs-4 text-right"><div style="text-align:center">' +
+               '<img class="upvote-icon" data-queuesongid="' +
+                songid + '" src="/media/upvote.png"><div class="votes">' + '0' +
+               '</div><img class="downvote-icon" src="/media/downvote.png"></div></div></div>';
        }}
        $('#queue').append(songdisplay)
        $('.queue-info').autoTextTape();
    }
-
 
 
 $("#play-button").click(function() {
@@ -272,6 +271,21 @@ $("#track-list, #playlist-list").on('click', '.search-play', function() {
     pause();
     play(songID);
 });
+
+$("#queue").on('click', '.upvote-icon', function() {
+    var queuesongid = $(this).data('queuesongid')
+    var userID = getCookie('uid-cookie')
+    var streamID = 1
+    upvoteSong([streamID, userID, queuesongid])
+})
+
+
+$("#queue").on('click', '.downvote-icon', function() {
+    var queuesongid = $(this).data('queuesongid')
+    var userID = getCookie('uid-cookie')
+    var streamID = 1
+    upvoteSong([streamID, userID, queuesongid])
+})
 
 
 /*
@@ -326,3 +340,38 @@ $('#volumeSlider').mouseup(function(){
    }});
  }
 
+function upvoteSong(params){
+  $.ajax({
+    url: 'https://35.171.97.26:8888/upvoteSong',
+    type: "GET",
+    headers: headers,
+    data: {
+      streamID: params[0],
+      userID: params[1],
+      queuesongID: params[2]
+    },
+    success: function(data) {
+      console.log(data)
+    },
+    error: function (xhr, ajaxOptions, thrownError){
+      console.log(xhr.status);
+  }});
+}
+
+function downvoteSong(params){
+  $.ajax({
+    url: 'https://35.171.97.26:8888/downvoteSong',
+    type: "GET",
+    headers: headers,
+    data: {
+      streamID: params[0],
+      userID: params[1],
+      queuesongID: params[2]
+    },
+    success: function(data) {
+      console.log(data)
+    },
+    error: function (xhr, ajaxOptions, thrownError){
+      console.log(xhr.status);
+  }});
+}

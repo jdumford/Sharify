@@ -332,6 +332,21 @@ $('#volumeSlider').mouseup(function(){
   getTracksFromIDs(queueIDs)
  }
 
+async function getQueue(){
+  var response = await $.ajax({
+    url: 'https://34.224.122.69:8888/getqueue',
+    type: "GET",
+    dataType: 'jsonp'
+  });
+  return response;
+}
+
+ async function showQueue(){
+  var queueIDs = await getQueue()
+  console.log(queueIDs)
+  getTracksFromIDs(queueIDs)
+ }
+
  function addToQueue(songID){
    $.ajax({
      url: 'https://34.224.122.69:8888/addToQueue',
@@ -348,38 +363,39 @@ $('#volumeSlider').mouseup(function(){
    }});
  }
 
-function upvoteSong(params){
-  $.ajax({
-    url: 'https://35.171.97.26:8888/upvoteSong',
-    type: "GET",
-    headers: headers,
-    data: {
-      streamID: params[0],
-      userID: params[1],
-      queuesongID: params[2]
-    },
-    success: function(data) {
-      console.log(data)
-    },
-    error: function (xhr, ajaxOptions, thrownError){
-      console.log(xhr.status);
-  }});
-}
+ function upvoteSong(params){
+   $.ajax({
+     url: 'https://34.224.122.69:8888/upvoteSong',
+     type: "GET",
+     headers: headers,
+     data: {
+       streamID: params[0],
+       userID: params[1],
+       queuesongID: params[2]
+     },
+     success: function(data) {
+       console.log(data)
+     },
+     error: function (xhr, ajaxOptions, thrownError){
+       console.log(xhr.status);
+   }});
+ }
 
-function downvoteSong(params){
-  $.ajax({
-    url: 'https://35.171.97.26:8888/downvoteSong',
-    type: "GET",
-    headers: headers,
-    data: {
-      streamID: params[0],
-      userID: params[1],
-      queuesongID: params[2]
-    },
-    success: function(data) {
-      console.log(data)
-    },
-    error: function (xhr, ajaxOptions, thrownError){
-      console.log(xhr.status);
-  }});
-}
+ function downvoteSong(params){
+   $.ajax({
+     url: 'https://34.224.122.69:8888/downvoteSong',
+     type: "GET",
+     headers: headers,
+     data: {
+       streamID: params[0],
+       userID: params[1],
+       queuesongID: params[2]
+     },
+     success: function(data) {
+       console.log(data)
+     },
+     error: function (xhr, ajaxOptions, thrownError){
+       console.log(xhr.status);
+   }});
+ }
+

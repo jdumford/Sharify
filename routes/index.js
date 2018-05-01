@@ -200,108 +200,49 @@ var generateRandomString = function(length) {
   return text;
 };
 
+/*
 var getQueue = function (conn, cb) {
   conn.execute(
     "begin "
     + "getPack.getQueue(:sid);"
     + "end;",
-    {sid : 2},
+    {sid : 1},
     function(err) { return cb(err, conn) });
-  }
+  }*/
 
 
   router.get("/getqueue", function (req, res) {
-    getDatabaseResult(getQueue, res)
+    dbhelper.getProcResults(dbhelper.getQueue, [2], res)
   });
 
 
   router.get("/addToQueue", function (req, res) {
-    var query = dbhelper.addToQueue
-    dbhelper.getProcResults(query, [2, req.query.id], res)
+    var query = dbhelper.addtoQueue
+    dbhelper.ExecuteQuery(query, [2, req.query.id], res)
+  });
+
+
+  router.get("/playedSong", function (req, res) {
+    var query = dbhelper.playedSong
+    console.log([req.query.stid, req.query.sid])
+    dbhelper.ExecuteQuery(query, [parseInt(req.query.stid), req.query.sid], res)
   });
 
   router.get("/upvoteSong", function (req, res) {
     var query = dbhelper.upVoteSong
-    dbhelper.ExecuteQuery(query, [req.query.streamID,
+    console.log([parseInt(req.query.streamID),
+        req.query.userID, req.query.queuesongID])
+    dbhelper.ExecuteQuery(query, [parseInt(req.query.streamID),
         req.query.userID, req.query.queuesongID], res)
   });
 
 
   router.get("/downvoteSong", function (req, res) {
     var query = dbhelper.downVoteSong
-    dbhelper.ExecuteQuery(query, [req.query.streamID,
+    dbhelper.ExecuteQuery(query, [parseInt(req.query.streamID),
         req.query.userID, req.query.queuesongID], res)
   });
 
-
-  function getDatabaseResult(query, res){
-    var dbResults = []
-    function compileResults(result, isDone){
-      if (result){
-        dbResults.push(result)
-      }
-      else{
-        return dbResults; 
-      }
-    }
-
-    oracledb.createPool(dbConfig, function(err, pool) {
-      if (err)
-      console.error(err.message)
-      else{
-        doit(pool)
-      }
-    });
-
-
-    var doit = function(pool) {
-      var output = [];
-      async.waterfall(
-        [
-          function(cb) {
-            pool.getConnection(cb);
-          },
-
-          enableDbmsOutput,
-          // Method 1: Fetch a line of DBMS_OUTPUT at a time
-          query,
-          output = fetchDbmsOutputLine,
-        ],
-        function (err, conn, result) {
-          if (err) { console.error("In waterfall error cb: ==>", err, "<=="); }
-          conn.release(function (err) { if (err) console.error(err.message); });
-          res.jsonp(result)
-        }
-      )
-      return output;
-    };
-
-    var enableDbmsOutput = function (conn, cb) {
-      conn.execute(
-        "begin dbms_output.enable(null); end;",
-        function(err) { return cb(err, conn) });
-      }
-
-
-      var fetchDbmsOutputLine = function (conn, cb) {
-        conn.execute(
-          "begin dbms_output.get_line(:ln, :st); end;",
-          { ln: { dir: oracledb.BIND_OUT, type:oracledb.STRING, maxSize: 32767 },
-          st: { dir: oracledb.BIND_OUT, type:oracledb.NUMBER } },
-          function(err, result) {
-            if (err) {
-              return cb(err, conn, null);
-            }
-            else if (result.outBinds.st == 1) {
-              compileResults(null, false);
-              return cb(null, conn, dbResults);
-            }
-            else {
-              compileResults(result.outBinds.ln, false)
-              return fetchDbmsOutputLine(conn, cb);
-            }
-          });
-        }}
 
 
 module.exports = router;

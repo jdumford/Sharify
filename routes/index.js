@@ -216,6 +216,19 @@ var getQueue = function (conn, cb) {
     dbhelper.getProcResults(query, [1, req.query.id], res)
   });
 
+  router.get("/upvoteSong", function (req, res) {
+    var query = dbhelper.upVoteSong
+    dbhelper.ExecuteQuery(query, [req.query.streamID,
+        req.query.userID, req.query.queuesongID], res)
+  });
+
+
+  router.get("/downvoteSong", function (req, res) {
+    var query = dbhelper.downVoteSong
+    dbhelper.ExecuteQuery(query, [req.query.streamID,
+        req.query.userID, req.query.queuesongID], res)
+  });
+
 
   function getDatabaseResult(query, res){
     var dbResults = []

@@ -39,17 +39,24 @@ function play(trackID){
     }});
 }
 
+
 function onStateChange(state){
   if (isSongOver(state)){
-    play(getNextTrack());
-  };
+    playNextTrackFromQueue();
+  }
+  else{
+   if (state != null){
+  updateCurrentTrack(state["track_window"]["current_track"])
+ }}
+}
+
 
   updateCurrentTrack(state["track_window"]["current_track"])
 }
 
 var previousTracks = 0;
 function isSongOver(state){
-  if (previousTracks != state["track_window"]["previous_tracks"].length)
+  if (state != null && previousTracks != state["track_window"]["previous_tracks"].length)
   {
     console.log(state);
     previousTracks = state["track_window"]["previous_tracks"].length;
@@ -58,6 +65,7 @@ function isSongOver(state){
   return false;
 }
 
+
 function updateCurrentTrack(current_track){
   $('#current-song-name').html(current_track["name"]);
   $('#current-song-artist').html(current_track["artists"][0]["name"] + " / " + current_track["album"]["name"]);
@@ -65,7 +73,23 @@ function updateCurrentTrack(current_track){
 }
 
 
-function getNextTrack(){
-  // database call
-  return '6byp7KQaDiJXkDqxVL0hbk'
+function playNextTrackFromQueue(){
+  $.ajax({
+   url: 'https://35.171.97.26:8888/getqueue',
+   type: "GET",
+   dataType: 'jsonp',
+   headers: headers,
+   success: function(data) {
+     getNextTrack(data)
+   },
+   error: function (xhr, ajaxOptions, thrownError){
+     console.log(xhr.status);
+   }});
+ }
+
+function getNextTrack(data){
+  var nextTrack = data[0]
+  track = String(nextTrack)
+  play(track)
 }
+

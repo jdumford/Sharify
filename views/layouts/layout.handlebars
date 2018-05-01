@@ -173,12 +173,45 @@
 
       <!--Profile Page-->
       <div id="profile-page" class="container-fluid">
+	<div id="prof-userID"></div>
 	<div class="row">
 	  <div class="col-sm-2">
 	    <img id="prof-pic">
 	  </div>
-	  <div class="col-sm-10">
+	  <div class="col-sm-8">
 	    <div id="prof-username" class="text-header"></div>
+	  </div>
+	  <div class="col-sm-2">
+	    <button id="follow-button" type="button" class="btn btn-primary">Follow</button>
+	  </div>
+	</div>
+	<div class="row">
+	  <div class="col-sm-2">
+	    <div class="text-medium">Followers:</div>
+	    <div id="followers-count">123</div>
+	  </div>
+	  <div class="col-sm-2">
+            <div class="text-medium">Following:</div>
+            <div id="following-count">123</div>
+          </div>
+	</div>
+	<div id="prof-settings">
+	  <div class="row">
+	    <div class="col-sm-12">
+	      <div class="text-small">Profile Privacy</div>
+	    </div>
+	  </div>
+	  <div class="row">
+	    <div class="col-sm-12">
+	      <div class="form-check">
+		<input class="form-check-input" type="radio" name="prof-privacy" value="public" checked>
+		<label class="form-check-label">Public</label>
+              </div>
+              <div class="form-check">
+		<input class="form-check-input" type="radio" name="prof-privacy" value="private">
+		<label class="form-check-label">Private</label>
+              </div>
+	    </div>
 	  </div>
 	</div>
       </div>

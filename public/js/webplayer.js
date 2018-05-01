@@ -41,18 +41,16 @@ function play(trackID){
 
 
 function onStateChange(state){
-  if (isSongOver(state)){
-    playNextTrackFromQueue();
-  }
-  else{
-   if (state != null){
-  updateCurrentTrack(state["track_window"]["current_track"])
- }}
+    if (isSongOver(state)){
+	playNextTrackFromQueue();
+    }
+    else{
+	if (state != null){
+	    updateCurrentTrack(state["track_window"]["current_track"])
+	}
+    }
 }
 
-
-  updateCurrentTrack(state["track_window"]["current_track"])
-}
 
 var previousTracks = 0;
 function isSongOver(state){

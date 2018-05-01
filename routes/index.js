@@ -111,25 +111,6 @@ router.get('/callback', function(req, res) {
 
   request.post(authOptions, function(error, response, body) {
     if (!error && response.statusCode === 200) {
-<<<<<<< HEAD
-	res.cookie(webtoken, body.access_token);
-	var options = {
-	    url: 'https://api.spotify.com/v1/me',
-	    headers: { 'Authorization': 'Bearer ' + body.access_token},
-	    json: true
-	};
-	request.get(options, function(error, response, user_info) {
-	    var tokens = req.app.get('tokens');
-	    tokens[user_info['id']] = {
-		'access': body.access_token,
-		'refresh': body.refresh_token,
-		'name': user_info['display_name']
-	    }
-	    req.app.set('tokens', tokens)
-	});
-
-        res.redirect('/');
-=======
         res.cookie(webtoken, body.access_token);
         var options = {
             url: 'https://api.spotify.com/v1/me',
@@ -138,19 +119,18 @@ router.get('/callback', function(req, res) {
         };
         var userID = {id : ""}
         request.get(options, function(error, response, user_info) {
-            setUserCookie(user_info["id"])
             dbhelper.ExecuteQuery(dbhelper.addUser, [user_info["id"]], res)
             var tokens = req.app.get('tokens');
             tokens[user_info['id']] = {
                 'access': body.access_token,
-                'refresh': body.refresh_token
+                'refresh': body.refresh_token,
+		'name': user_info["display_name"]
             }
             req.app.set('tokens', tokens)
             setUserCookie(user_info["id"])
             res.redirect('/');
         });
-       // res.redirect('/');
->>>>>>> 87b28b3566f4a524cdd7be5cbca030dc247eec18
+
      }
      // invalid token
 
@@ -225,7 +205,7 @@ var getQueue = function (conn, cb) {
     "begin "
     + "getPack.getQueue(:sid);"
     + "end;",
-    {sid : 1},
+    {sid : 2},
     function(err) { return cb(err, conn) });
   }
 
@@ -237,7 +217,7 @@ var getQueue = function (conn, cb) {
 
   router.get("/addToQueue", function (req, res) {
     var query = dbhelper.addToQueue
-    dbhelper.getProcResults(query, [1, req.query.id], res)
+    dbhelper.getProcResults(query, [2, req.query.id], res)
   });
 
   router.get("/upvoteSong", function (req, res) {

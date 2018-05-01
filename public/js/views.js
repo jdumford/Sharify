@@ -35,13 +35,25 @@ function renderProfile(userID){
 	    'Authorization': 'Bearer ' + getCookie('webplayer-token')
 	}, 
 	success: function(user){
-	    console.log(user);
+	    $('#prof-userID').html(userID);
 	    if(user.images.length > 0){
 		$('#prof-pic').attr('src', user.images[0].url);
 	    }else{
 		$('#prof-pic').attr('src', '/media/user-anon.png');
 	    }
 	    $('#prof-username').html(user.display_name);
+	    
+	    if(getCookie('uid-cookie') == userID){
+		$('#prof-settings').css('display', 'block');
+		$('#follow-button').css('display', 'none');
+	    }else{
+		$('#prof-settings').css('display', 'none');
+		$('#follow-button').css('display', 'block');
+	    }
+
+	    //get followers and following count from db
+	    //$('#followers-count').html()
+	    //$('#following-count').html()
 	},
 	error: function (xhr, ajaxOptions, thrownError){
             console.log(xhr.status);

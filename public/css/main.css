@@ -178,6 +178,10 @@ body{
     border-radius: 50%;
 }
 
+#prof-userID{
+    display:none;
+}
+
 /*Login Page styles*/
 #login-background{
 	position: fixed;

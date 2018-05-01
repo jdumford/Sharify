@@ -139,8 +139,9 @@ function getCurrentUser(){
 
 
 async function getPlaylistTracks(playlistID, index){
-    var userID = await getUserID();
-    
+    //var userID = await getUserID();
+    var userID = getCookie('uid-cookie');
+
     $.ajax({
         url: 'https://api.spotify.com/v1/users/' + userID + '/playlists/' + playlistID + '/tracks',
         type: "GET",
@@ -153,6 +154,7 @@ async function getPlaylistTracks(playlistID, index){
         }});
 }
 
+/*
 async function getUserID(){
     var response = await $.ajax({
         url: 'https://api.spotify.com/v1/me',
@@ -161,7 +163,7 @@ async function getUserID(){
     });
     return response["id"];
 }
-
+*/
 function showPlaylistTracks(data, index, playlistID){
     var images = "<img src=\"/media/play.png\" class=\"search-icons search-play\">"
         + "<img src=\"/media/plus.png\" class=\"search-icons plus\">"
@@ -224,29 +226,29 @@ function getTracksFromIDs(trackIDs){
 	}});
 }
 
-   function updateQueueDisplay(songs){
-       var songdisplay = ""
-       for (var i in songs) {
-         if(songs[i]){
-           var songname = songs[i]["name"]
-           var songartist = songs[i]["artists"][0]["name"]
-           var songid = songs[i]["id"]
-           songdisplay += '<div class="row queue-item" id="queue-' + String(i) +
-               '"><div class="col-xs-8" style="padding-top:5px"><div class="queue-info">' + songname +
-               '</div><div class="queue-info">' + songartist + '</div></div>' +
-               '<div class="col-xs-4 text-right"><div style="text-align:center">' +
-               '<img class="upvote-icon" data-queuesongid="' +
-                songid + '" src="/media/upvote.png"><div class="votes">' + '0' +
-               '</div><img class="downvote-icon" src="/media/downvote.png"></div></div></div>';
-       }}
-       $('#queue').append(songdisplay)
-       $('.queue-info').autoTextTape();
-   }
+function updateQueueDisplay(songs){
+    var songdisplay = ""
+    for (var i in songs) {
+        if(songs[i]){
+            var songname = songs[i]["name"]
+            var songartist = songs[i]["artists"][0]["name"]
+            var songid = songs[i]["id"]
+            songdisplay += '<div class="row queue-item" id="queue-' + String(i) +
+		'"><div class="col-xs-8" style="padding-top:5px"><div class="queue-info">' + songname +
+		'</div><div class="queue-info">' + songartist + '</div></div>' +
+		'<div class="col-xs-4 text-right"><div style="text-align:center">' +
+		'<img class="upvote-icon" data-queuesongid="' +
+                songid + '" src="/media/upvote.png"><div class="votes">' +
+		'</div><img class="downvote-icon" src="/media/downvote.png"></div></div></div>';
+	}}
+    $('#queue').append(songdisplay)
+    $('.queue-info').autoTextTape();
+}
 
 
 
 $('#username').click(function(){
-    renderProfile(getCookie('userID'));
+    renderProfile(getCookie('uid-cookie'));
 });
 
 

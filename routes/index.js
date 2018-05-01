@@ -14,6 +14,7 @@ var redirect_uri = 'https://34.224.122.69:8888/callback/';
 
 var stateKey = 'spotify_auth_state';
 var webtoken = 'webplayer-token';
+var userIDcookie = 'uid-cookie';
 var dbhelper = require('../dbhelpers.js');
 
 //get request for a view named index
@@ -103,27 +104,36 @@ router.get('/callback', function(req, res) {
       },
       json: true
     };
+	  
+ function setUserCookie(id){
+    res.cookie(userIDcookie, id)
+  }
 
   request.post(authOptions, function(error, response, body) {
     if (!error && response.statusCode === 200) {
-	res.cookie(webtoken, body.access_token);
-	var options = {
-	    url: 'https://api.spotify.com/v1/me',
-	    headers: { 'Authorization': 'Bearer ' + body.access_token},
-	    json: true
-	};
-	request.get(options, function(error, response, user_info) {
-	    var tokens = req.app.get('tokens');
-	    tokens[user_info['id']] = {
-		'access': body.access_token,
-		'refresh': body.refresh_token
-	    }
-	    req.app.set('tokens', tokens)
-	});
-
-        res.redirect('/');
+        res.cookie(webtoken, body.access_token);
+        var options = {
+            url: 'https://api.spotify.com/v1/me',
+            headers: { 'Authorization': 'Bearer ' + body.access_token},
+            json: true
+        };
+        var userID = {id : ""}
+        request.get(options, function(error, response, user_info) {
+            setUserCookie(user_info["id"])
+            dbhelper.ExecuteQuery(dbhelper.addUser, [user_info["id"]], res)
+            var tokens = req.app.get('tokens');
+            tokens[user_info['id']] = {
+                'access': body.access_token,
+                'refresh': body.refresh_token
+            }
+            req.app.set('tokens', tokens)
+            setUserCookie(user_info["id"])
+            res.redirect('/');
+        });
+       // res.redirect('/');
      }
      // invalid token
+
      else {
       res.redirect('/#' +
        querystring.stringify({

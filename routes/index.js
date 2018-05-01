@@ -14,6 +14,7 @@ var redirect_uri = 'https://34.224.122.69:8888/callback/';
 
 var stateKey = 'spotify_auth_state';
 var webtoken = 'webplayer-token';
+var dbhelper = require('../dbhelpers.js');
 
 //get request for a view named index
 router.get('/', function(req, res){
@@ -200,6 +201,13 @@ var getQueue = function (conn, cb) {
   router.get("/getqueue", function (req, res) {
     getDatabaseResult(getQueue, res)
   });
+
+
+  router.get("/addToQueue", function (req, res) {
+    var query = dbhelper.addToQueue
+    dbhelper.getProcResults(query, [1, req.query.id], res)
+  });
+
 
   function getDatabaseResult(query, res){
     var dbResults = []

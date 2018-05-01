@@ -29,7 +29,7 @@ function getProcResults(query, params, res){
             pool.getConnection(cb);
           },
           enableDbmsOutput,
-          query(params),
+          async.apply(query, params),
           fetchDbmsOutputLine,
         ],
         function (err, conn, result) {
@@ -79,7 +79,7 @@ function getFuncResult(query,params, res){
           function(cb) {
             pool.getConnection(cb);
           },
-          getResult(query(params))
+          getResult(async.apply(query, params))
         ],
         function (err, conn, result) {
           if (err) { console.error("In waterfall error cb: ==>", err, "<=="); }
@@ -106,7 +106,7 @@ function ExecuteQuery(query, params, res){
           function(cb) {
             pool.getConnection(cb);
           },
-          query(params)
+          async.apply(query, params),
         ]
       )
     };
@@ -131,9 +131,9 @@ function doRelease(connection) {
 }
 
 //getUserPrivacy PL/SQL execution
-var getUserPrivacy = function (conn, cb, uid) {
+var getUserPrivacy = function (p, conn, cb) {
    var bindvars = {
-      p1:  uid,
+      p1:  p[0],
       ret:  { dir: oracledb.BIND_OUT, type: oracledb.NUMBER }
    };
    conn.execute(
@@ -154,9 +154,9 @@ var getUserPrivacy = function (conn, cb, uid) {
 
 
 //getStreamHostID
-var getStreamHostID = function (conn, cb, stid) {
+var getStreamHostID = function (p, conn, cb) {
    var bindvars = {
-      p1:  stid,
+      p1:  p[0],
       ret:  { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 32 }
    };
    conn.execute(
@@ -176,9 +176,9 @@ var getStreamHostID = function (conn, cb, stid) {
 }
 
 //getStreamDescription
-var getStreamDescription = function (conn, cb, stid) {
+var getStreamDescription = function (p, conn, cb) {
    var bindvars = {
-      p1:  stid,
+      p1:  p[0],
       ret:  { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 72 }
    };
    conn.execute(
@@ -198,9 +198,9 @@ var getStreamDescription = function (conn, cb, stid) {
 }
 
 //getStreamUAccess
-var getStreamUAccess = function (conn, cb, stid) {
+var getStreamUAccess = function (p, conn, cb) {
    var bindvars = {
-      p1:  stid,
+      p1:  p[0],
       ret:  { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 16 }
    };
    conn.execute(
@@ -220,9 +220,9 @@ var getStreamUAccess = function (conn, cb, stid) {
 }
 
 //getStreamLiveCount
-var getStreamLiveCount = function (conn, cb, stid) {
+var getStreamLiveCount = function (p, conn, cb) {
    var bindvars = {
-      p1:  stid,
+      p1:  p[0],
       ret:  { dir: oracledb.BIND_OUT, type: oracledb.NUMBER }
    };
    conn.execute(
@@ -242,9 +242,9 @@ var getStreamLiveCount = function (conn, cb, stid) {
 }
 
 //getFollowersCount
-var getFollowersCount = function (conn, cb, uid) {
+var getFollowersCount = function (p, conn, cb) {
    var bindvars = {
-      p1:  uid,
+      p1:  p[0],
       ret:  { dir: oracledb.BIND_OUT, type: oracledb.NUMBER }
    };
    conn.execute(
@@ -264,9 +264,9 @@ var getFollowersCount = function (conn, cb, uid) {
 }
 
 //getFolloweesCount
-var getFolloweesCount = function (conn, cb, id) {
+var getFolloweesCount = function (p, conn, cb) {
    var bindvars = {
-      p1:  uid,
+      p1:  p[0],
       ret:  { dir: oracledb.BIND_OUT, type: oracledb.NUMBER }
    };
    conn.execute(
@@ -286,9 +286,9 @@ var getFolloweesCount = function (conn, cb, id) {
 }
 
 //getAllFollowers
-var getAllFollowers = function (conn, cb, uid) {
+var getAllFollowers = function (p, conn, cb) {
    var bindvars = {
-      p1:  uid
+      p1:  p[0]
    };
   conn.execute(
     "begin "
@@ -299,9 +299,9 @@ var getAllFollowers = function (conn, cb, uid) {
 }
 
 //getAllFollowees
-var getAllFollowers = function (conn, cb, uid) {
+var getAllFollowers = function (p, conn, cb) {
    var bindvars = {
-      p1:  uid
+      p1:  p[0]
    };
   conn.execute(
     "begin "
@@ -313,7 +313,7 @@ var getAllFollowers = function (conn, cb, uid) {
 
 
 //getLiveStreams PL/SQL execution (gets All live streams)
-var getLiveStreams = function (conn, cb) {
+var getLiveStreams = function (p, conn, cb) {
   conn.execute(
     "begin "
      + "getPack.getLiveStreams;"
@@ -322,9 +322,9 @@ var getLiveStreams = function (conn, cb) {
 }
 
 //getFollowedStreams
-var getFollowedStreams = function (conn, cb, uid) {
+var getFollowedStreams = function (p, conn, cb) {
    var bindvars = {
-      p1:  uid
+      p1:  p[0]
    };
   conn.execute(
     "begin "
@@ -335,9 +335,9 @@ var getFollowedStreams = function (conn, cb, uid) {
 }
 
 //getGlobalStreams
-var getGlobalStreams = function (conn, cb, uid) {
+var getGlobalStreams = function (p, conn, cb) {
    var bindvars = {
-      p1:  uid
+      p1:  p[0]
    };
   conn.execute(
     "begin "
@@ -348,9 +348,9 @@ var getGlobalStreams = function (conn, cb, uid) {
 }
 
 //getQueue
-var getQueue = function (conn, cb, stid) {
+var getQueue = function (p, conn, cb) {
    var bindvars = {
-      p1:  stid
+      p1:  p[0]
    };
   conn.execute(
     "begin "
@@ -361,9 +361,9 @@ var getQueue = function (conn, cb, stid) {
 }
 
 //getHistory
-var getHistory = function (conn, cb, stid) {
+var getHistory = function (p, conn, cb) {
    var bindvars = {
-      p1:  stid
+      p1:  p[0]
    };
   conn.execute(
     "begin "
@@ -374,9 +374,9 @@ var getHistory = function (conn, cb, stid) {
 }
 
 //getPlaylistSongs
-var getPlaylistSongs = function (conn, cb, pid) {
+var getPlaylistSongs = function (p, conn, cb) {
    var bindvars = {
-      p1:  pid
+      p1:  p[0]
    };
   conn.execute(
     "begin "
@@ -389,10 +389,10 @@ var getPlaylistSongs = function (conn, cb, pid) {
 /*	SET Functions	*/
 
 //startCollabStream
-var startCollabStream = function (conn, cb, uid, dsc) {
+var startCollabStream = function (p, conn, cb) {
    var bindvars = {
-      p1:  uid,
-      p2: dsc,
+      p1:  p[0],
+      p2: p[1],
       ret:  { dir: oracledb.BIND_OUT, type: oracledb.NUMBER }
    };
    conn.execute(
@@ -413,10 +413,10 @@ var startCollabStream = function (conn, cb, uid, dsc) {
 
 
 //startPubStream
-var startPubStream = function (conn, cb, uid, dsc) {
+var startPubStream = function (p, conn, cb) {
    var bindvars = {
-      p1:  uid,
-      p2: dsc,
+      p1: p[0],
+      p2: p[1],
       ret:  { dir: oracledb.BIND_OUT, type: oracledb.NUMBER }
    };
    conn.execute(
@@ -436,10 +436,10 @@ var startPubStream = function (conn, cb, uid, dsc) {
 }
 
 //startPrivStream
-var startPrivStream = function (conn, cb, uid, dsc) {
+var startPrivStream = function (p, conn, cb) {
    var bindvars = {
-      p1:  uid,
-      p2: dsc,
+      p1: p[0],
+      p2: p[1],
       ret:  { dir: oracledb.BIND_OUT, type: oracledb.NUMBER }
    };
    conn.execute(
@@ -460,10 +460,10 @@ var startPrivStream = function (conn, cb, uid, dsc) {
 
 
 //addtoQueue
-var addtoQueue = function (conn, cb, stid, sid) {
+var addtoQueue = function (p, conn, cb) {
    var bindvars = {
-      p1:  stid,
-      p2: sid
+      p1: p[0],
+      p2: p[1]
    };
   conn.execute(
     "begin "
@@ -474,9 +474,9 @@ var addtoQueue = function (conn, cb, stid, sid) {
 }
 
 //addUser
-var addUser = function (conn, cb, uid) {
+var addUser = function (p, conn, cb) {
    var bindvars = {
-      p1:  uid
+      p1:  p[0]
    };
   conn.execute(
     "begin "
@@ -487,9 +487,9 @@ var addUser = function (conn, cb, uid) {
 }
 
 //setPrivate
-var add = function (conn, cb, uid) {
+var setPrivate = function (p, conn, cb) {
    var bindvars = {
-      p1:  uid
+      p1:  p[0]
    };
   conn.execute(
     "begin "
@@ -499,15 +499,197 @@ var add = function (conn, cb, uid) {
     function(err) { return cb(err, conn) });
 }
 
-//addUser
-var addUser = function (conn, cb, uid) {
+//setPublic
+var setPublic = function (p, conn, cb) {
    var bindvars = {
-      p1:  uid
+      p1:  p[0]
    };
   conn.execute(
     "begin "
-     + "setPack.addUser(:p1);"
+     + "setPack.setPublic(:p1);"
      + "end;",
    bindvars,
     function(err) { return cb(err, conn) });
+}
+
+//followUser
+var followUser = function (p, conn, cb) {
+   var bindvars = {
+      p1:  p[0],
+      p2: p[1]
+   };
+  conn.execute(
+    "begin "
+     + "setPack.followUser(:p1, :p2);"
+     + "end;",
+   bindvars,
+    function(err) { return cb(err, conn) });
+}
+
+//unfollowUser
+var unfollowUser = function (p, conn, cb) {
+   var bindvars = {
+      p1:  p[0],
+      p2: p[1]
+   };
+  conn.execute(
+    "begin "
+     + "setPack.unfollowUser(:p1, :p2);"
+     + "end;",
+   bindvars,
+    function(err) { return cb(err, conn) });
+}
+
+//acceptFollow
+var acceptFollow = function (p, conn, cb) {
+   var bindvars = {
+      p1:  p[0],
+      p2: p[1]
+   };
+  conn.execute(
+    "begin "
+     + "setPack.accpetFollow(:p1, :p2);"
+     + "end;",
+   bindvars,
+    function(err) { return cb(err, conn) });
+}
+
+
+//declineFollow
+var declineFollow = function (p, conn, cb) {
+   var bindvars = {
+      p1:  p[0],
+      p2: p[1]
+   };
+  conn.execute(
+    "begin "
+     + "setPack.declineFollow(:p1, :p2);"
+     + "end;",
+   bindvars,
+    function(err) { return cb(err, conn) });
+}
+
+//endStream
+var endStream = function (p, conn, cb) {
+   var bindvars = {
+      p1:  p[0]
+   };
+  conn.execute(
+    "begin "
+     + "setPack.endStream(:p1);"
+     + "end;",
+   bindvars,
+    function(err) { return cb(err, conn) });
+}
+
+//upVoteSong
+var upVoteSong = function (p, conn, cb) {
+   var bindvars = {
+      p1:  p[0],
+      p2: p[1],
+      p3: p[2]
+   };
+  conn.execute(
+    "begin "
+     + "setPack.upVoteSong(:p1, :p2, :p3);"
+     + "end;",
+   bindvars,
+    function(err) { return cb(err, conn) });
+}
+
+//downVoteSong
+var downVoteSong = function (p, conn, cb) {
+   var bindvars = {
+      p1:  p[0],
+      p2: p[1],
+      p3: p[2]
+   };
+  conn.execute(
+    "begin "
+     + "setPack.downVoteSong(:p1, :p2, :p3);"
+     + "end;",
+   bindvars,
+    function(err) { return cb(err, conn) });
+}
+
+//playedSong
+var playedSong = function (p, conn, cb) {
+   var bindvars = {
+      p1:  p[0],
+      p2: p[1]
+   };
+  conn.execute(
+    "begin "
+     + "setPack.playedSong(:p1, :p2);"
+     + "end;",
+   bindvars,
+    function(err) { return cb(err, conn) });
+}
+
+//joinStream
+var joinStream = function (p, conn, cb) {
+   var bindvars = {
+      p1:  p[0],
+      p2: p[1]
+   };
+  conn.execute(
+    "begin "
+     + "setPack.joinStream(:p1, :p2);"
+     + "end;",
+   bindvars,
+    function(err) { return cb(err, conn) });
+}
+
+//joinStream
+var leaveStream = function (p, conn, cb) {
+   var bindvars = {
+      p1:  p[0],
+      p2: p[1]
+   };
+  conn.execute(
+    "begin "
+     + "setPack.leaveStream(:p1, :p2);"
+     + "end;",
+   bindvars,
+    function(err) { return cb(err, conn) });
+}
+
+
+
+module.exports = {
+	getFuncResult : getFuncResult,
+	getProcResults : getProcResults,
+	ExecuteQuery : ExecuteQuery,
+	getUserPrivacy : getUserPrivacy,
+	getStreamHostID : getStreamHostID,
+	getStreamDescription : getStreamDescription,
+	getStreamUAccess : getStreamUAccess,
+	getStreamLiveCount : getStreamLiveCount,
+	getFollowersCount : getFollowersCount,
+	getFolloweesCount : getFolloweesCount,
+	getAllFollowers : getAllFollowers,
+	getAllFollowers : getAllFollowers,
+	getLiveStreams : getLiveStreams,
+	getFollowedStreams : getFollowedStreams,
+	getGlobalStreams : getGlobalStreams,
+	getQueue : getQueue,
+	getHistory : getHistory,
+	getPlaylistSongs : getPlaylistSongs,
+	startCollabStream : startCollabStream,
+	startPubStream : startPubStream,
+	startPrivStream : startPrivStream,
+	addtoQueue : addtoQueue,
+	addUser : addUser,
+	setPrivate : setPrivate,
+	setPublic : setPublic,
+	followUser : followUser,
+	unfollowUser : unfollowUser,
+	acceptFollow : acceptFollow,
+	declineFollow : declineFollow,
+	endStream : endStream,
+	upVoteSong : upVoteSong,
+	downVoteSong : downVoteSong,
+	playedSong : playedSong,
+	joinStream : joinStream,
+	leaveStream : leaveStream
 }

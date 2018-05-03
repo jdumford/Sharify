@@ -72,7 +72,7 @@ function updateCurrentTrack(current_track){
 
 function playNextTrackFromQueue(){
   $.ajax({
-   url: 'https://35.171.97.26:8888/getqueue',
+   url: 'https://34.224.122.69:8888/getqueue',
    type: "GET",
    dataType: 'jsonp',
    headers: headers,
@@ -94,7 +94,7 @@ function getNextTrack(data){
 function playedSong(params){
   console.log(params)
   $.ajax({
-   url: 'https://35.171.97.26:8888/playedSong',
+   url: 'https://34.224.122.69:8888/playedSong',
    type: "GET",
    headers: headers,
    data: {

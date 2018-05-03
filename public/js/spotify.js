@@ -43,13 +43,13 @@ async function getStreamData(){
 		    '<img style="width: 40px" src="/media/play.png"></div><div class="col-sm-5 col-md-6">' + 
 		    '<div style="font-size: 18pt" onclick="renderProfile(\'' + streams[i].streamerID + 
 		    '\')">' + streams[i].streamerName + '</div><div>' + 
-		    'This is a description'  + '</div></div>' +
+		    ''  + '</div></div>' +
 		    '<div class="col-sm-2" style="text-align:center; border-left: 1px solid black;">' + 
 		    '<img class="stream-img" src="' + streams[i].album_cover + 
 		    '"></div><div class="col-sm-3"><div class="scroll-info">' + 
 		    'Currently Playing</div><div class="scroll-info">' + streams[i].name + ' - ' + 
-		    streams[i].artist + '</div><div class="scroll-info">Current Listeners: ' + 
-		    '7' + '</div></div></div>';
+		    streams[i].artist + '</div><div class="scroll-info">' + 
+		    '' + '</div></div></div>';
 		$('#main-friends-streams').append(s)
 		$('.scroll-info').autoTextTape();
 	    }
@@ -271,7 +271,7 @@ $("#stream-tab-playlist").click(function() {
 
 $("#track-list, #playlist-list").on('click', '.plus', function() {
     var songID = $(this).parent().data('songid');
-    addToQueue(songID)
+    addToQueue(songID);
 });
 
 $("#track-list, #playlist-list").on('click', '.search-play', function() {
@@ -283,7 +283,7 @@ $("#track-list, #playlist-list").on('click', '.search-play', function() {
 $("#queue").on('click', '.upvote-icon', function() {
     var queuesongid = $(this).data('queuesongid')
     var userID = getCookie('uid-cookie')
-    var streamID = 1
+    var streamID = 2
     upvoteSong([streamID, userID, queuesongid])
 })
 
@@ -291,7 +291,7 @@ $("#queue").on('click', '.upvote-icon', function() {
 $("#queue").on('click', '.downvote-icon', function() {
     var queuesongid = $(this).data('queuesongid')
     var userID = getCookie('uid-cookie')
-    var streamID = 1
+    var streamID = 2
     upvoteSong([streamID, userID, queuesongid])
 })
 
@@ -341,11 +341,6 @@ async function getQueue(){
   return response;
 }
 
- async function showQueue(){
-  var queueIDs = await getQueue()
-  console.log(queueIDs)
-  getTracksFromIDs(queueIDs)
- }
 
  function addToQueue(songID){
    $.ajax({
@@ -356,7 +351,9 @@ async function getQueue(){
        id: songID
      },
      success: function(data) {
-       //console.log(data)
+	 console.log("YAY");
+	 showQueue();
+	 
      },
      error: function (xhr, ajaxOptions, thrownError){
        console.log(xhr.status);

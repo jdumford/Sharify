@@ -388,73 +388,27 @@ var getPlaylistSongs = function (p, conn, cb) {
 
 /*	SET Functions	*/
 
-//startCollabStream
-var startCollabStream = function (p, conn, cb) {
+//startStream
+var startStream = function (p, conn, cb) {
    var bindvars = {
       p1:  p[0],
       p2: p[1],
+      p3: p[2],
       ret:  { dir: oracledb.BIND_OUT, type: oracledb.NUMBER }
    };
    conn.execute(
     "begin "
-     + ":ret := setPack.startCollabStream(:p1, :p2);"
+     + ":ret := setPack.startStream(:p1, :p2, :p3);"
      + "end;",
    bindvars,
    function (err, result) {
         if (err) {
           console.error(err.message);
-          doRelease(connection);
+          doRelease(conn);
           return;
         }
    	console.log(result.outBinds);
-        doRelease(connection);
-      });
-}
-
-
-//startPubStream
-var startPubStream = function (p, conn, cb) {
-   var bindvars = {
-      p1: p[0],
-      p2: p[1],
-      ret:  { dir: oracledb.BIND_OUT, type: oracledb.NUMBER }
-   };
-   conn.execute(
-    "begin "
-     + ":ret := setPack.startPubStream(:p1, :p2);"
-     + "end;",
-   bindvars,
-   function (err, result) {
-        if (err) {
-          console.error(err.message);
-          doRelease(connection);
-          return;
-        }
-   	console.log(result.outBinds);
-        doRelease(connection);
-      });
-}
-
-//startPrivStream
-var startPrivStream = function (p, conn, cb) {
-   var bindvars = {
-      p1: p[0],
-      p2: p[1],
-      ret:  { dir: oracledb.BIND_OUT, type: oracledb.NUMBER }
-   };
-   conn.execute(
-    "begin "
-     + ":ret := setPack.startPrivStream(:p1, :p2);"
-     + "end;",
-   bindvars,
-   function (err, result) {
-        if (err) {
-          console.error(err.message);
-          doRelease(connection);
-          return;
-        }
-   	console.log(result.outBinds);
-        doRelease(connection);
+        doRelease(conn);
       });
 }
 

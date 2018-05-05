@@ -23,6 +23,7 @@ function getProcResults(query, params, res){
 
 
     var doit = function(pool) {
+      dbResults = []
       async.waterfall(
         [
           function(cb) {
@@ -62,9 +63,6 @@ function getProcResults(query, params, res){
 }
 
 function getFuncResult(query,params, res){
-    function getResults(result){
-        return cb(null, conn, result);
-    }
     oracledb.createPool(dbConfig, function(err, pool) {
       if (err)
       console.error(err.message)
@@ -79,7 +77,7 @@ function getFuncResult(query,params, res){
           function(cb) {
             pool.getConnection(cb);
           },
-          getResult(async.apply(query, params))
+          async.apply(query, params)
         ],
         function (err, conn, result) {
           if (err) { console.error("In waterfall error cb: ==>", err, "<=="); }
@@ -141,15 +139,7 @@ var getUserPrivacy = function (p, conn, cb) {
      + ":ret := getPack.getUserPrivacy(:p1);"
      + "end;",
    bindvars,
-   function (err, result) {
-        if (err) {
-          console.error(err.message);
-          doRelease(connection);
-          return;
-        }
-        doRelease(connection);
-   	return result.outBinds;
-      });
+   function(err) { return cb(err, conn) });
 }
 
 
@@ -164,15 +154,7 @@ var getStreamHostID = function (p, conn, cb) {
      + ":ret := getPack.getStreamHostID(:p1);"
      + "end;",
    bindvars,
-   function (err, result) {
-        if (err) {
-          console.error(err.message);
-          doRelease(connection);
-          return;
-        }
-        doRelease(connection);
-   	return result.outBinds;
-      });
+   function(err) { return cb(err, conn) });
 }
 
 //getStreamDescription
@@ -186,15 +168,7 @@ var getStreamDescription = function (p, conn, cb) {
      + ":ret := getPack.getStreamDescription(:p1);"
      + "end;",
    bindvars,
-   function (err, result) {
-        if (err) {
-          console.error(err.message);
-          doRelease(connection);
-          return;
-        }
-        doRelease(connection);
-   	return result.outBinds;
-      });
+   function(err) { return cb(err, conn) });
 }
 
 //getStreamUAccess
@@ -208,15 +182,7 @@ var getStreamUAccess = function (p, conn, cb) {
      + ":ret := getPack.getStreamUAccess(:p1);"
      + "end;",
    bindvars,
-   function (err, result) {
-        if (err) {
-          console.error(err.message);
-          doRelease(connection);
-          return;
-        }
-        doRelease(connection);
-   	return result.outBinds;
-      });
+   function(err) { return cb(err, conn) });
 }
 
 //getStreamLiveCount
@@ -230,15 +196,7 @@ var getStreamLiveCount = function (p, conn, cb) {
      + ":ret := getPack.getStreamLiveCount(:p1);"
      + "end;",
    bindvars,
-   function (err, result) {
-        if (err) {
-          console.error(err.message);
-          doRelease(connection);
-          return;
-        }
-        doRelease(connection);
-   	return result.outBinds;
-      });
+   function(err) { return cb(err, conn) });
 }
 
 //getFollowersCount
@@ -252,15 +210,7 @@ var getFollowersCount = function (p, conn, cb) {
      + ":ret := getPack.getFollowersCount(:p1);"
      + "end;",
    bindvars,
-   function (err, result) {
-        if (err) {
-          console.error(err.message);
-          doRelease(connection);
-          return;
-        }
-        doRelease(connection);
-   	return result.outBinds;
-      });
+   function(err) { return cb(err, conn) });
 }
 
 //getFolloweesCount
@@ -274,15 +224,7 @@ var getFolloweesCount = function (p, conn, cb) {
      + ":ret := getPack.getFolloweesCount(:p1);"
      + "end;",
    bindvars,
-   function (err, result) {
-        if (err) {
-          console.error(err.message);
-          doRelease(connection);
-          return;
-        }
-        doRelease(connection);
-   	return result.outBinds;
-      });
+   function(err) { return cb(err, conn) });
 }
 
 //getAllFollowers
@@ -401,15 +343,7 @@ var startStream = function (p, conn, cb) {
      + ":ret := setPack.startStream(:p1, :p2, :p3);"
      + "end;",
    bindvars,
-   function (err, result) {
-        if (err) {
-          console.error(err.message);
-          doRelease(conn);
-          return;
-        }
-   	console.log(result.outBinds);
-        doRelease(conn);
-      });
+   function(err) { return cb(err, conn) });
 }
 
 

@@ -283,7 +283,7 @@ $("#track-list, #playlist-list").on('click', '.search-play', function() {
 $("#queue").on('click', '.upvote-icon', function() {
     var queuesongid = $(this).data('queuesongid')
     var userID = getCookie('uid-cookie')
-    var streamID = 2
+    var streamID = getCookie('streamID')
     upvoteSong([streamID, userID, queuesongid])
 })
 
@@ -291,7 +291,7 @@ $("#queue").on('click', '.upvote-icon', function() {
 $("#queue").on('click', '.downvote-icon', function() {
     var queuesongid = $(this).data('queuesongid')
     var userID = getCookie('uid-cookie')
-    var streamID = 2
+    var streamID = getCookie('streamID')
     upvoteSong([streamID, userID, queuesongid])
 })
 
@@ -318,28 +318,22 @@ $('#volumeSlider').mouseup(function(){
     changeVolume($(this).val());
 });
 
- async function getQueue(){
-  var response = await $.ajax({
-    url: 'https://34.224.122.69:8888/getqueue',
-    type: "GET",
-    dataType: 'jsonp'
-  });
-  return response;
- }
-
  async function showQueue(){
   var queueIDs = await getQueue()
   getTracksFromIDs(queueIDs)
  }
 
-async function getQueue(){
-  var response = await $.ajax({
-    url: 'https://34.224.122.69:8888/getqueue',
-    type: "GET",
-    dataType: 'jsonp'
-  });
-  return response;
-}
+ async function getQueue(){
+   var response = await $.ajax({
+     url: 'https://34.224.122.69:8888/getqueue',
+     type: "GET",
+     data: {
+      streamID: getCookie('streamID')
+     },
+     dataType: 'jsonp'
+   });
+   return response;
+ }
 
 
  function addToQueue(songID){
@@ -348,12 +342,12 @@ async function getQueue(){
      type: "GET",
      headers: headers,
      data: {
-       id: songID
+       id: songID,
+       streamID: getCookie('streamID')
      },
+     dataType: 'jsonp',
      success: function(data) {
-	 console.log("YAY");
-	 showQueue();
-	 
+         showQueue();
      },
      error: function (xhr, ajaxOptions, thrownError){
        console.log(xhr.status);
@@ -370,6 +364,7 @@ async function getQueue(){
        userID: params[1],
        queuesongID: params[2]
      },
+     dataType: 'jsonp',
      success: function(data) {
        console.log(data)
      },
@@ -388,6 +383,7 @@ async function getQueue(){
        userID: params[1],
        queuesongID: params[2]
      },
+     dataType: 'jsonp',
      success: function(data) {
        console.log(data)
      },
@@ -395,4 +391,121 @@ async function getQueue(){
        console.log(xhr.status);
    }});
  }
+
+/*
+ function getFollowersCount(params){
+   $.ajax({
+     url: 'https://34.224.122.69:8888/getFollowersCount',
+     type: "GET",
+     headers: headers,
+     data: {
+       streamID: params[0],
+       userID: params[1],
+       queuesongID: params[2]
+     },
+     success: function(data) {
+       console.log(data)
+     },
+     error: function (xhr, ajaxOptions, thrownError){
+       console.log(xhr.status);
+   }});
+ }
+
+
+ function getFolloweesCount(params){
+   $.ajax({
+     url: 'https://34.224.122.69:8888/getFolloweesCount',
+     type: "GET",
+     headers: headers,
+     data: {
+       streamID: params[0],
+       userID: params[1],
+       queuesongID: params[2]
+     },
+     success: function(data) {
+       console.log(data)
+     },
+     error: function (xhr, ajaxOptions, thrownError){
+       console.log(xhr.status);
+   }});
+ }
+*/
+
+ function startStreamDB(params){
+   $.ajax({
+     url: 'https://34.224.122.69:8888/startStream',
+     type: "GET",
+     headers: headers,
+     data: {
+       hostid: params[0],
+       description: params[1],
+       acc: params[2]
+     }
+     success: function(data) {
+      document.cookie = 'streamID=' + data[0];
+     },
+     error: function (xhr, ajaxOptions, thrownError){
+       console.log(xhr.status);
+   }});
+ }
+
+
+ function joinStream(params){
+   $.ajax({
+     url: 'https://34.224.122.69:8888/joinStream',
+     type: "GET",
+     headers: headers,
+     data: {
+       streamID: params[0],
+       userID: params[1],
+       queuesongID: params[2]
+     },
+     dataType: 'jsonp',
+     success: function(data) {
+       console.log(data)
+     },
+     error: function (xhr, ajaxOptions, thrownError){
+       console.log(xhr.status);
+   }});
+ }
+
+ function leaveStream(params){
+   $.ajax({
+     url: 'https://34.224.122.69:8888/leaveStream',
+     type: "GET",
+     headers: headers,
+     data: {
+       streamID: params[0],
+       userID: params[1],
+       queuesongID: params[2]
+     },
+     dataType: 'jsonp',
+     success: function(data) {
+       console.log(data)
+     },
+     error: function (xhr, ajaxOptions, thrownError){
+       console.log(xhr.status);
+   }});
+ }
+
+
+ function getUserPrivacy(params){
+   $.ajax({
+     url: 'https://34.224.122.69:8888/getUserPrivacy',
+     type: "GET",
+     headers: headers,
+     data: {
+       streamID: params[0],
+       userID: params[1],
+       queuesongID: params[2]
+     },
+     dataType: 'jsonp',
+     success: function(data) {
+       console.log(data)
+     },
+     error: function (xhr, ajaxOptions, thrownError){
+       console.log(xhr.status);
+   }});
+ }
+
 

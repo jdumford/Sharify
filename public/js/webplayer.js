@@ -22,22 +22,24 @@ var headers = {
   };
 
 function play(trackID){
-  var dataString = null;
-  if (trackID != null){
-    dataString = '{"uris": ["spotify:track:' + trackID + '\"]}'
-  }
-
-  $.ajax({
-    url: 'https://api.spotify.com/v1/me/player/play?device_id=' + deviceID.sharer,
-    type: "PUT",
-    data: dataString,
-    headers: headers,
-    success: function(data) {
-      // console.log("playing")
-    },
-    error: function (xhr, ajaxOptions, thrownError){
-      console.log(xhr.status);
-    }});
+    var dataString = null;
+    $("#pause-button").removeClass('hidden');
+    $("#play-button").addClass('hidden');
+    if (trackID != null){
+	dataString = '{"uris": ["spotify:track:' + trackID + '\"]}'
+    }
+    
+    $.ajax({
+	url: 'https://api.spotify.com/v1/me/player/play?device_id=' + deviceID.sharer,
+	type: "PUT",
+	data: dataString,
+	headers: headers,
+	success: function(data) {
+	    // console.log("playing")
+	},
+	error: function (xhr, ajaxOptions, thrownError){
+	    console.log(xhr.status);
+	}});
 }
 
 function onStateChange(state){

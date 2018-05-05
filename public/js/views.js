@@ -75,7 +75,7 @@ function cancelStream(){
     $('#mask').css("display", "none");
 }
 
-//when you click the start stream button in the menu
+//when you click the start stream button in the start stream menu
 function startStream(){
     $('#main-stream-options-button').css("display", "none");
     $('#stream-start-form').css("display", "none");

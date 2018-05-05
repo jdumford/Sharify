@@ -89,7 +89,7 @@ function getFuncResult(query,params, res){
 
 }
 
-function ExecuteQuery(query, params, res){
+function ExecuteQuery(query, params){
     oracledb.createPool(dbConfig, function(err, pool) {
       if (err)
       console.error(err.message)

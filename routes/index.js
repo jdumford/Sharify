@@ -17,6 +17,8 @@ var webtoken = 'webplayer-token';
 var userIDcookie = 'uid-cookie';
 var dbhelper = require('../dbhelpers.js');
 
+var show_stream_counter = 0;
+
 //get request for a view named index
 router.get('/', function(req, res){
     if (!req.cookies[webtoken]){
@@ -28,7 +30,7 @@ router.get('/', function(req, res){
     }
 });
 
-
+/*
 router.get('/profile', function(req, res){
     if (!req.cookies[webtoken]){
         res.redirect('/login');
@@ -50,7 +52,7 @@ router.get('/stream', function(req, res){
     }
 
 });
-
+*/
 router.get('/login', function(req, res){
 	res.render('login', { title: 'Login', layout: 'loglayout' });
 	console.log('login');
@@ -144,7 +146,7 @@ router.get('/callback', function(req, res) {
   }
 });
 
-function getStream(res, t, tokens, counter, streams){
+function getStream(res, t, tokens, streams){
     var token_count = Object.keys(tokens).length
     var options = {
 	url: 'https://api.spotify.com/v1/me/player/currently-playing',
@@ -155,39 +157,55 @@ function getStream(res, t, tokens, counter, streams){
 	},
 	json:true
     }
-    options.headers.Authorization = 'Bearer ' + tokens[t].access;
-    request.get(options, function(error, response, body) {
-	if (body == null) {
-	}else{
-	    var stream = {
-		streamerID: t,
-		streamerName: tokens[t].name,
-		name: body.item.name,
-		artist: body.item.artists[0].name,
-		album: body.item.album.name,
-		album_cover: body.item.album.images[0].url
+
+	options.headers.Authorization = 'Bearer ' + tokens[t].access;
+	request.get(options, function(error, response, body) {
+	    if (body == null) {
+	    }else{
+		var stream = {
+		    streamerID: t,
+		    streamerName: tokens[t].name,
+		    name: body.item.name,
+		    artist: body.item.artists[0].name,
+		    album: body.item.album.name,
+		    album_cover: body.item.album.images[0].url
+		}
+		streams.push(stream)
 	    }
-	    streams.push(stream)
-	}
-	
-	if(counter == token_count){
-	    res.jsonp(streams);
-	}
-    });
+	    show_stream_counter += 1
+	    if(show_stream_counter == token_count){
+		res.jsonp(streams);
+	    }
+	});
 }
 
 
 //uses access tokens of streaming friends to get info about what they're playing
 router.get("/friends-streaming", function (req, res) {
     var tokens = req.app.get('tokens');
-    var counter = 0;
+    show_stream_counter = 0;
     var streams = []
-    var done = false
-    for(var t in tokens){
-	counter += 1
-	getStream(res, t, tokens, counter, streams);
+    var token_count = Object.keys(tokens).length
+    var options = {
+	url: 'https://api.spotify.com/v1/me/player/currently-playing',
+	type: "GET",
+	headers: {
+	    'Accept': 'application/json',
+	    'Content-Type':'application/json'
+	},
+	json:true
     }
 
+    for(var t in tokens){
+	getStream(res, t, tokens, streams);
+
+
+    }
+
+});
+
+router.get("/live-streams", function(req, res) {
+    dbhelper.getProcResults(dbhelper.getLiveStreams, [], res)
 });
 
 var generateRandomString = function(length) {
@@ -211,15 +229,16 @@ var getQueue = function (conn, cb) {
   }*/
 
 
-  router.get("/getqueue", function (req, res) {
+router.get("/getqueue", function (req, res) {
     dbhelper.getProcResults(dbhelper.getQueue, [2], res)
-  });
+});
 
 
-  router.get("/addToQueue", function (req, res) {
+router.get("/addToQueue", function (req, res) {
     var query = dbhelper.addtoQueue
     dbhelper.ExecuteQuery(query, [2, req.query.id], res)
-  });
+    res.send("success")
+});
 
 
   router.get("/playedSong", function (req, res) {

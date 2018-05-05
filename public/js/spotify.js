@@ -1,4 +1,4 @@
-
+ 
 $(document).ready(function(){
     //getCurrentUserPlaylists();
     getCurrentUser();
@@ -39,8 +39,10 @@ async function getStreamData(){
 	success: function(streams) {
 	    $('#main-friends-streams').html("")
 	    for(var i in streams){
-		var s = '<div class="stream-row"><div class="col-sm-2 col-md-1">' + 
-		    '<img style="width: 40px" src="/media/play.png"></div><div class="col-sm-5 col-md-6">' + 
+		var s = '<div class="stream-row" streamer="' + streams[i].streamerID + 
+		    '"><div class="col-sm-2 col-md-1">' + 
+		    '<img style="width: 40px" onclick="joinStream(1' + '' + 
+		    ')" src="/media/play.png"></div><div class="col-sm-5 col-md-6">' + 
 		    '<div style="font-size: 18pt" onclick="renderProfile(\'' + streams[i].streamerID + 
 		    '\')">' + streams[i].streamerName + '</div><div>' + 
 		    ''  + '</div></div>' +
@@ -53,6 +55,18 @@ async function getStreamData(){
 		$('#main-friends-streams').append(s)
 		$('.scroll-info').autoTextTape();
 	    }
+	    $.ajax({
+		url: 'https://34.224.122.69:8888/live-streams',
+		type: "GET",
+		datatype: 'jsonp',
+		success: function(data){
+		    $('.stream-row').css('display', 'none');
+		    for (var row in data){
+			var row_string = '.stream-row[streamer="' + data[row].split(',')[1] + '"';
+			$(row_string).css('display', 'block');
+		    }
+		}
+	    });
 	},
 	error: function (xhr, ajaxOptions, thrownError){
 	    console.log("BAD")
@@ -184,6 +198,8 @@ function showPlaylistTracks(data, index, playlistID){
 }
 
 function pause(){
+    $("#pause-button").addClass('hidden');
+    $("#play-button").removeClass('hidden');
     $.ajax({
         url: 'https://api.spotify.com/v1/me/player/pause',
         type: "PUT",
@@ -241,6 +257,7 @@ function updateQueueDisplay(songs){
                 songid + '" src="/media/upvote.png"><div class="votes">' +
 		'</div><img class="downvote-icon" src="/media/downvote.png"></div></div></div>';
 	}}
+    $('#queue').html("")
     $('#queue').append(songdisplay)
     $('.queue-info').autoTextTape();
 }
@@ -253,17 +270,13 @@ $('#username').click(function(){
 
 
 $("#play-button").click(function() {
-    pause();
     play();
-    $(this).addClass('hidden');
-    $("#pause-button").removeClass('hidden');
 });
 
 $("#pause-button").click(function() {
     pause();
-    $(this).addClass('hidden');
-    $("#play-button").removeClass('hidden');
 });
+
 
 $("#stream-tab-playlist").click(function() {
     getCurrentUserPlaylists();
@@ -276,7 +289,9 @@ $("#track-list, #playlist-list").on('click', '.plus', function() {
 
 $("#track-list, #playlist-list").on('click', '.search-play', function() {
     var songID = $(this).parent().data('songid');
-    pause();
+    if($('#play-button').hasClass('hidden')){
+	pause();
+    }
     play(songID);
 });
 
@@ -318,81 +333,72 @@ $('#volumeSlider').mouseup(function(){
     changeVolume($(this).val());
 });
 
- async function getQueue(){
-  var response = await $.ajax({
-    url: 'https://34.224.122.69:8888/getqueue',
-    type: "GET",
-    dataType: 'jsonp'
-  });
-  return response;
- }
-
- async function showQueue(){
-  var queueIDs = await getQueue()
-  getTracksFromIDs(queueIDs)
- }
-
 async function getQueue(){
-  var response = await $.ajax({
-    url: 'https://34.224.122.69:8888/getqueue',
-    type: "GET",
-    dataType: 'jsonp'
-  });
-  return response;
+    var response = await $.ajax({
+	url: 'https://34.224.122.69:8888/getqueue',
+	type: "GET",
+	dataType: 'jsonp'
+    });
+    return response;
+}
+
+async function showQueue(){
+    var queueIDs = await getQueue()
+    getTracksFromIDs(queueIDs)
 }
 
 
- function addToQueue(songID){
-   $.ajax({
-     url: 'https://34.224.122.69:8888/addToQueue',
-     type: "GET",
-     headers: headers,
-     data: {
-       id: songID
-     },
-     success: function(data) {
-	 console.log("YAY");
-	 showQueue();
-	 
-     },
-     error: function (xhr, ajaxOptions, thrownError){
-       console.log(xhr.status);
-   }});
- }
+function addToQueue(songID){
+    $.ajax({
+	url: 'https://34.224.122.69:8888/addToQueue',
+	type: "GET",
+	headers: headers,
+	data: {
+	    id: songID
+	},
+	success: function(data) {
+	    showQueue();
+	    
+	},
+	error: function (xhr, ajaxOptions, thrownError){
+	    console.log(xhr.status);
+	}});
+    
+}
 
- function upvoteSong(params){
-   $.ajax({
-     url: 'https://34.224.122.69:8888/upvoteSong',
-     type: "GET",
-     headers: headers,
-     data: {
-       streamID: params[0],
-       userID: params[1],
-       queuesongID: params[2]
-     },
-     success: function(data) {
+function upvoteSong(params){
+    $.ajax({
+	url: 'https://34.224.122.69:8888/upvoteSong',
+	type: "GET",
+	headers: headers,
+	data: {
+	    streamID: params[0],
+	    userID: params[1],
+	    queuesongID: params[2]
+	},
+	success: function(data) {
        console.log(data)
-     },
-     error: function (xhr, ajaxOptions, thrownError){
-       console.log(xhr.status);
-   }});
- }
+	},
+	error: function (xhr, ajaxOptions, thrownError){
+	    console.log(xhr.status);
+	}});
+}
 
- function downvoteSong(params){
-   $.ajax({
-     url: 'https://34.224.122.69:8888/downvoteSong',
-     type: "GET",
-     headers: headers,
-     data: {
-       streamID: params[0],
-       userID: params[1],
-       queuesongID: params[2]
-     },
-     success: function(data) {
-       console.log(data)
-     },
-     error: function (xhr, ajaxOptions, thrownError){
-       console.log(xhr.status);
-   }});
- }
+function downvoteSong(params){
+    $.ajax({
+	url: 'https://34.224.122.69:8888/downvoteSong',
+	type: "GET",
+	headers: headers,
+	data: {
+	    streamID: params[0],
+	    userID: params[1],
+	    queuesongID: params[2]
+	},
+	success: function(data) {
+	    console.log(data)
+	},
+	error: function (xhr, ajaxOptions, thrownError){
+	    console.log(xhr.status);
+	}});
+}
 

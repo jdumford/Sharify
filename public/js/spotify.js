@@ -67,12 +67,13 @@ async function getStreamData(){
 			    $(row_string).css('display', 'block');
 			}
 			$(row_string).attr('stream-id', data[row].split(',')[0]);
-			
+			$(row_string).attr('access', data[row].split(',')[2]);
 			$(row_string).on('click', '.join-stream', function() {
-			    joinStream($(this).parent().parent().attr('stream-id'), $(this).parent().parent().attr('currentsong'));
+			    joinStream($(this).parent().parent().attr('stream-id'), $(this).parent().parent().attr('currentsong'), $(this).parent().parent().attr('access'));
 			});
 		    }
 		    $('#main-friends-streams').css('display', 'block');
+		    $('.scroll-info').autoTextTape();
 		}
 	    });
 	},
@@ -259,11 +260,14 @@ function updateQueueDisplay(songs){
             var songid = songs[i]["id"]
             songdisplay += '<div class="row queue-item" id="queue-' + String(i) +
 		'"><div class="col-xs-8" style="padding-top:5px"><div class="queue-info">' + songname +
-		'</div><div class="queue-info">' + songartist + '</div></div>' +
-		'<div class="col-xs-4 text-right"><div style="text-align:center">' +
-		'<img class="upvote-icon" data-queuesongid="' +
-                songid + '" src="/media/upvote.png"><div class="votes">' +
-		'</div><img class="downvote-icon" src="/media/downvote.png"></div></div></div>';
+		'</div><div class="queue-info">' + songartist + '</div></div>';
+	    if(getCookie('access') == 'collaborative'){
+		songdisplay += '<div class="col-xs-4 text-right"><div style="text-align:center">' +
+		    '<img class="upvote-icon" data-queuesongid="' +
+                    songid + '" src="/media/upvote.png"><div class="votes">' +
+		    '</div><img class="downvote-icon" src="/media/downvote.png"></div></div>';
+	    }
+	    songdisplay += '</div>';
 	}}
     $('#queue').html("")
     $('#queue').append(songdisplay)
@@ -479,7 +483,7 @@ function startStreamDB(params){
 }
 
 
-function joinStream(streamID, currentSong){
+function joinStream(streamID, currentSong, access){
     $.ajax({
 	url: 'https://34.224.122.69:8888/joinStream',
 	type: "GET",
@@ -490,8 +494,9 @@ function joinStream(streamID, currentSong){
 	},
 	dataType: 'jsonp',
 	success: function(data) {
-	    document.cookie = 'streamID=' + streamID 
+	    document.cookie = 'streamID=' + streamID; 
 	    document.cookie = 'mystream=false';
+	    document.cookie = 'access=' + access;
 	    showQueue()
 	    play(currentSong)
 	},

@@ -1,0 +1,7 @@
+DROP SEQUENCE stream_seq;
+
+CREATE SEQUENCE stream_seq
+START WITH 1
+INCREMENT BY 1;
+
+exit;

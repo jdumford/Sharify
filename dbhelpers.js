@@ -13,15 +13,6 @@ function getProcResults(query, params, res){
       }
     }
 
-    oracledb.createPool(dbConfig, function(err, pool) {
-      if (err)
-      console.error(err.message)
-      else{
-        doit(pool)
-      }
-    });
-
-
     var doit = function(pool) {
       dbResults = []
       async.waterfall(
@@ -34,9 +25,12 @@ function getProcResults(query, params, res){
           fetchDbmsOutputLine,
         ],
         function (err, conn, result) {
-          if (err) { console.error("In waterfall error cb: ==>", err, "<=="); }
-          conn.release(function (err) { if (err) console.error(err.message); });
-          res.jsonp(result)
+          if (err) {
+   	  }
+          if (conn) {
+		doRelease(conn);
+	  }
+	res.jsonp(result)
         }
       )
     };
@@ -60,32 +54,15 @@ function getProcResults(query, params, res){
             }
           });
         }
-}
 
-function getFuncResult(query,params, res){
-    oracledb.createPool(dbConfig, function(err, pool) {
+    pool = oracledb.createPool(dbConfig, function(err, pool) {
       if (err)
       console.error(err.message)
       else{
         doit(pool)
       }
-    });
 
-    var doit = function(pool) {
-      async.waterfall(
-        [
-          function(cb) {
-            pool.getConnection(cb);
-          },
-          async.apply(query, params)
-        ],
-        function (err, conn, result) {
-          if (err) { console.error("In waterfall error cb: ==>", err, "<=="); }
-          conn.release(function (err) { if (err) console.error(err.message); });
-          res.jsonp(result)
-        }
-      )
-    };
+    });
 
 }
 
@@ -98,6 +75,7 @@ function ExecuteQuery(query, params){
       }
     });
 
+
     var doit = function(pool) {
       async.waterfall(
         [
@@ -105,8 +83,15 @@ function ExecuteQuery(query, params){
             pool.getConnection(cb);
           },
           async.apply(query, params),
-        ]
-      )
+        ],
+        function (err, conn) {
+          if (err) {
+   	  }
+          if (conn) {
+		doRelease(conn);
+	  }
+	 }
+	)
     };
 }
 
@@ -123,9 +108,9 @@ function doRelease(connection) {
   connection.close(
     function(err) {
       if (err) {
-        console.error(err.message);
-      }
-    });
+	}
+    })
+
 }
 
 //getUserPrivacy PL/SQL execution
@@ -372,6 +357,7 @@ var addUser = function (p, conn, cb) {
      + "end;",
    bindvars,
     function(err) { return cb(err, conn) });
+   doRelease(conn);
 }
 
 //setPrivate
@@ -385,6 +371,7 @@ var setPrivate = function (p, conn, cb) {
      + "end;",
    bindvars,
     function(err) { return cb(err, conn) });
+   doRelease(conn);
 }
 
 //setPublic
@@ -398,6 +385,7 @@ var setPublic = function (p, conn, cb) {
      + "end;",
    bindvars,
     function(err) { return cb(err, conn) });
+   doRelease(conn);
 }
 
 //followUser
@@ -412,6 +400,7 @@ var followUser = function (p, conn, cb) {
      + "end;",
    bindvars,
     function(err) { return cb(err, conn) });
+   doRelease(conn);
 }
 
 //unfollowUser
@@ -426,6 +415,7 @@ var unfollowUser = function (p, conn, cb) {
      + "end;",
    bindvars,
     function(err) { return cb(err, conn) });
+   doRelease(conn);
 }
 
 //acceptFollow
@@ -440,6 +430,7 @@ var acceptFollow = function (p, conn, cb) {
      + "end;",
    bindvars,
     function(err) { return cb(err, conn) });
+   doRelease(conn);
 }
 
 
@@ -455,6 +446,7 @@ var declineFollow = function (p, conn, cb) {
      + "end;",
    bindvars,
     function(err) { return cb(err, conn) });
+   doRelease(conn);
 }
 
 //endStream
@@ -468,6 +460,7 @@ var endStream = function (p, conn, cb) {
      + "end;",
    bindvars,
     function(err) { return cb(err, conn) });
+   doRelease(conn);
 }
 
 //upVoteSong
@@ -483,6 +476,7 @@ var upVoteSong = function (p, conn, cb) {
      + "end;",
    bindvars,
     function(err) { return cb(err, conn) });
+   doRelease(conn);
 }
 
 //downVoteSong
@@ -498,6 +492,7 @@ var downVoteSong = function (p, conn, cb) {
      + "end;",
    bindvars,
     function(err) { return cb(err, conn) });
+   doRelease(conn);
 }
 
 //playedSong
@@ -512,6 +507,7 @@ var playedSong = function (p, conn, cb) {
      + "end;",
    bindvars,
     function(err) { return cb(err, conn) });
+   doRelease(conn);
 }
 
 //joinStream
@@ -526,9 +522,10 @@ var joinStream = function (p, conn, cb) {
      + "end;",
    bindvars,
     function(err) { return cb(err, conn) });
+   doRelease(conn);
 }
 
-//joinStream
+//leaveStream
 var leaveStream = function (p, conn, cb) {
    var bindvars = {
       p1:  p[0],
@@ -540,12 +537,10 @@ var leaveStream = function (p, conn, cb) {
      + "end;",
    bindvars,
     function(err) { return cb(err, conn) });
+   doRelease(conn);
 }
 
-
-
 module.exports = {
-	getFuncResult : getFuncResult,
 	getProcResults : getProcResults,
 	ExecuteQuery : ExecuteQuery,
 	getUserPrivacy : getUserPrivacy,

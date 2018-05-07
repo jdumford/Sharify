@@ -12,5 +12,10 @@ module.exports = {
 
   // Setting externalAuth is optional.  It defaults to false.  See:
   // https://oracle.github.io/node-oracledb/doc/api.html#extauth
-  externalAuth  : process.env.NODE_ORACLEDB_EXTERNALAUTH ? true : false
+  externalAuth  : process.env.NODE_ORACLEDB_EXTERNALAUTH ? true : false,
+
+  poolMin : 0,
+  poolMax : 50,
+  poolTimeout : 20
+
 };

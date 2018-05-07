@@ -1,17 +1,16 @@
  
 $(document).ready(function(){
-    //getCurrentUserPlaylists();
     getCurrentUser();
     getStreamData();
-    if (window.location.pathname == '/stream'){
-	getCurrentUserPlaylists();
-    }
-    // database call to get queue song ids
     showQueue();
     changeVolume(50);
-    //displayStreams([access_token]);
-
 });
+
+
+//setInterval(function(){
+//    getStreamData()
+//    showQueue()
+//}, 15000);
 
 function playlistToggle(name, index){
     var pid = $(name).attr('data-playlistid');
@@ -37,12 +36,13 @@ async function getStreamData(){
 	type: "GET",
 	dataType: 'jsonp',
 	success: function(streams) {
-	    $('#main-friends-streams').html("")
+	    $('#main-friends-streams').css("display", "none");
+	    $('#main-friends-streams').html("");
 	    for(var i in streams){
-		var s = '<div class="stream-row" streamer="' + streams[i].streamerID + 
+		var s = '<div class="stream-row" currentsong="' + streams[i].songID + '" streamer="' + streams[i].streamerID + 
 		    '"><div class="col-sm-2 col-md-1">' + 
-		    '<img style="width: 40px" onclick="joinStream(1' + '' + 
-		    ')" src="/media/play.png"></div><div class="col-sm-5 col-md-6">' + 
+		    '<img class="join-stream" style="width: 40px" src="/media/play.png">' + 
+		    '</div><div class="col-sm-5 col-md-6">' + 
 		    '<div style="font-size: 18pt" onclick="renderProfile(\'' + streams[i].streamerID + 
 		    '\')">' + streams[i].streamerName + '</div><div>' + 
 		    ''  + '</div></div>' +
@@ -52,7 +52,7 @@ async function getStreamData(){
 		    'Currently Playing</div><div class="scroll-info">' + streams[i].name + ' - ' + 
 		    streams[i].artist + '</div><div class="scroll-info">' + 
 		    '' + '</div></div></div>';
-		$('#main-friends-streams').append(s)
+		$('#main-friends-streams').append(s);
 		$('.scroll-info').autoTextTape();
 	    }
 	    $.ajax({
@@ -63,8 +63,16 @@ async function getStreamData(){
 		    $('.stream-row').css('display', 'none');
 		    for (var row in data){
 			var row_string = '.stream-row[streamer="' + data[row].split(',')[1] + '"';
-			$(row_string).css('display', 'block');
+			if (data[row].split(',')[2] != 'private'){
+			    $(row_string).css('display', 'block');
+			}
+			$(row_string).attr('stream-id', data[row].split(',')[0]);
+			
+			$(row_string).on('click', '.join-stream', function() {
+			    joinStream($(this).parent().parent().attr('stream-id'), $(this).parent().parent().attr('currentsong'));
+			});
 		    }
+		    $('#main-friends-streams').css('display', 'block');
 		}
 	    });
 	},
@@ -298,7 +306,7 @@ $("#track-list, #playlist-list").on('click', '.search-play', function() {
 $("#queue").on('click', '.upvote-icon', function() {
     var queuesongid = $(this).data('queuesongid')
     var userID = getCookie('uid-cookie')
-    var streamID = 2
+    var streamID = getCookie('streamID')
     upvoteSong([streamID, userID, queuesongid])
 })
 
@@ -306,8 +314,8 @@ $("#queue").on('click', '.upvote-icon', function() {
 $("#queue").on('click', '.downvote-icon', function() {
     var queuesongid = $(this).data('queuesongid')
     var userID = getCookie('uid-cookie')
-    var streamID = 2
-    upvoteSong([streamID, userID, queuesongid])
+    var streamID = getCookie('streamID')
+    downvoteSong([streamID, userID, queuesongid])
 })
 
 
@@ -333,18 +341,26 @@ $('#volumeSlider').mouseup(function(){
     changeVolume($(this).val());
 });
 
-async function getQueue(){
-    var response = await $.ajax({
-	url: 'https://34.224.122.69:8888/getqueue',
-	type: "GET",
-	dataType: 'jsonp'
-    });
-    return response;
-}
+
+
+
 
 async function showQueue(){
     var queueIDs = await getQueue()
     getTracksFromIDs(queueIDs)
+}
+
+
+async function getQueue(){
+    var response = await $.ajax({
+	url: 'https://34.224.122.69:8888/getqueue',
+	type: "GET",
+	data: {
+	    streamID: getCookie('streamID')
+	},
+	dataType: 'jsonp'
+    });
+    return response;
 }
 
 
@@ -354,16 +370,16 @@ function addToQueue(songID){
 	type: "GET",
 	headers: headers,
 	data: {
-	    id: songID
+	    id: songID,
+	    streamID: getCookie('streamID')
 	},
+	dataType: 'jsonp',
 	success: function(data) {
-	    showQueue();
-	    
+            showQueue();
 	},
 	error: function (xhr, ajaxOptions, thrownError){
-	    console.log(xhr.status);
+       console.log(xhr.status);
 	}});
-    
 }
 
 function upvoteSong(params){
@@ -375,9 +391,10 @@ function upvoteSong(params){
 	    streamID: params[0],
 	    userID: params[1],
 	    queuesongID: params[2]
-	},
+     },
+	dataType: 'jsonp',
 	success: function(data) {
-       console.log(data)
+	    showQueue();
 	},
 	error: function (xhr, ajaxOptions, thrownError){
 	    console.log(xhr.status);
@@ -394,11 +411,133 @@ function downvoteSong(params){
 	    userID: params[1],
 	    queuesongID: params[2]
 	},
+	dataType: 'jsonp',
 	success: function(data) {
-	    console.log(data)
+	    showQueue();
 	},
 	error: function (xhr, ajaxOptions, thrownError){
 	    console.log(xhr.status);
 	}});
 }
+
+/*
+ function getFollowersCount(params){
+   $.ajax({
+     url: 'https://34.224.122.69:8888/getFollowersCount',
+     type: "GET",
+     headers: headers,
+     data: {
+       streamID: params[0],
+       userID: params[1],
+       queuesongID: params[2]
+     },
+     success: function(data) {
+       console.log(data)
+     },
+     error: function (xhr, ajaxOptions, thrownError){
+       console.log(xhr.status);
+   }});
+ }
+
+
+ function getFolloweesCount(params){
+   $.ajax({
+     url: 'https://34.224.122.69:8888/getFolloweesCount',
+     type: "GET",
+     headers: headers,
+     data: {
+       streamID: params[0],
+       userID: params[1],
+       queuesongID: params[2]
+     },
+     success: function(data) {
+       console.log(data)
+     },
+     error: function (xhr, ajaxOptions, thrownError){
+       console.log(xhr.status);
+   }});
+ }
+*/
+
+function startStreamDB(params){
+    $.ajax({
+	url: 'https://34.224.122.69:8888/startStream',
+	type: "GET",
+	headers: headers,
+	data: {
+	    hostid: params[0],
+	    description: params[1],
+	    acc: params[2]
+	},
+	success: function(data) {
+	    document.cookie = 'streamID=' + data[0];
+	    document.cookie = 'mystream=true';
+	},
+	error: function (xhr, ajaxOptions, thrownError){
+	    console.log(xhr.status);
+	}});
+}
+
+
+function joinStream(streamID, currentSong){
+    $.ajax({
+	url: 'https://34.224.122.69:8888/joinStream',
+	type: "GET",
+	headers: headers,
+	data: {
+	  streamID: streamID,
+	  userID: getCookie('uid-cookie')
+	},
+	dataType: 'jsonp',
+	success: function(data) {
+	    document.cookie = 'streamID=' + streamID 
+	    document.cookie = 'mystream=false';
+	    showQueue()
+	    play(currentSong)
+	},
+	error: function (xhr, ajaxOptions, thrownError){
+	    console.log(xhr.status);
+    }});
+}
+
+
+ function leaveStream(params){
+   $.ajax({
+     url: 'https://34.224.122.69:8888/leaveStream',
+     type: "GET",
+     headers: headers,
+     data: {
+       streamID: params[0],
+       userID: params[1],
+       queuesongID: params[2]
+     },
+     dataType: 'jsonp',
+     success: function(data) {
+       console.log(data)
+     },
+     error: function (xhr, ajaxOptions, thrownError){
+       console.log(xhr.status);
+   }});
+ }
+
+
+ function getUserPrivacy(params){
+   $.ajax({
+     url: 'https://34.224.122.69:8888/getUserPrivacy',
+     type: "GET",
+     headers: headers,
+     data: {
+       streamID: params[0],
+       userID: params[1],
+       queuesongID: params[2]
+     },
+     dataType: 'jsonp',
+     success: function(data) {
+       console.log(data)
+     },
+     error: function (xhr, ajaxOptions, thrownError){
+       console.log(xhr.status);
+   }});
+ }
+
 

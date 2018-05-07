@@ -81,69 +81,70 @@ router.get('/login/spotify', function(req, res) {
 });
 
 router.get('/callback', function(req, res) {
-  var code = req.query.code || null;
-  var state = req.query.state || null;
-  var storedState = req.cookies ? req.cookies[stateKey] : null;
-
-  if (state === null || (storedState && state !== storedState)) {
-    console.log(error);
-    res.redirect('/login' +
-      querystring.stringify({
-        error: 'state_mismatch'
-      }));
-  }
-  else {
-    res.clearCookie(stateKey);
-    var authOptions = {
-      url: 'https://accounts.spotify.com/api/token',
-      form: {
-        code: code,
-        redirect_uri: redirect_uri,
-        grant_type: 'authorization_code'
-      },
+    var code = req.query.code || null;
+    var state = req.query.state || null;
+    var storedState = req.cookies ? req.cookies[stateKey] : null;
+    
+    if (state === null || (storedState && state !== storedState)) {
+	console.log(error);
+	res.redirect('/login' +
+		     querystring.stringify({
+			 error: 'state_mismatch'
+		     }));
+    }
+    else {
+	res.clearCookie(stateKey);
+	res.clearCookie('streamID');
+	var authOptions = {
+	    url: 'https://accounts.spotify.com/api/token',
+	    form: {
+		code: code,
+		redirect_uri: redirect_uri,
+		grant_type: 'authorization_code'
+	    },
       headers: {
-        'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64'))
+          'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64'))
       },
-      json: true
-    };
-	  
- function setUserCookie(id){
-    res.cookie(userIDcookie, id)
-  }
+	    json: true
+	};
+	
+	function setUserCookie(id){
+	    res.cookie(userIDcookie, id)
+	}
 
-  request.post(authOptions, function(error, response, body) {
-    if (!error && response.statusCode === 200) {
-        res.cookie(webtoken, body.access_token);
-        var options = {
-            url: 'https://api.spotify.com/v1/me',
-            headers: { 'Authorization': 'Bearer ' + body.access_token},
-            json: true
-        };
-        var userID = {id : ""}
-        request.get(options, function(error, response, user_info) {
-            dbhelper.ExecuteQuery(dbhelper.addUser, [user_info["id"]], res)
-            var tokens = req.app.get('tokens');
-            tokens[user_info['id']] = {
+	request.post(authOptions, function(error, response, body) {
+	    if (!error && response.statusCode === 200) {
+		res.cookie(webtoken, body.access_token);
+		var options = {
+		    url: 'https://api.spotify.com/v1/me',
+		    headers: { 'Authorization': 'Bearer ' + body.access_token},
+		    json: true
+		};
+		var userID = {id : ""}
+		request.get(options, function(error, response, user_info) {
+		    dbhelper.ExecuteQuery(dbhelper.addUser, [user_info["id"]], res)
+		    var tokens = req.app.get('tokens');
+		    tokens[user_info['id']] = {
                 'access': body.access_token,
-                'refresh': body.refresh_token,
-		'name': user_info["display_name"]
-            }
-            req.app.set('tokens', tokens)
-            setUserCookie(user_info["id"])
+			'refresh': body.refresh_token,
+			'name': user_info["display_name"]
+		    }
+		    req.app.set('tokens', tokens)
+		    setUserCookie(user_info["id"])
             res.redirect('/');
-        });
-
-     }
-     // invalid token
-
-     else {
-      res.redirect('/#' +
-       querystring.stringify({
-       error: 'invalid_token'
-      }));
-     }
-   });
-  }
+		});
+		
+	    }
+	    // invalid token
+	    
+	    else {
+		res.redirect('/#' +
+			     querystring.stringify({
+				 error: 'invalid_token'
+			     }));
+	    }
+	});
+    }
 });
 
 function getStream(res, t, tokens, streams){
@@ -157,26 +158,27 @@ function getStream(res, t, tokens, streams){
 	},
 	json:true
     }
-
-	options.headers.Authorization = 'Bearer ' + tokens[t].access;
-	request.get(options, function(error, response, body) {
-	    if (body == null) {
-	    }else{
-		var stream = {
-		    streamerID: t,
-		    streamerName: tokens[t].name,
-		    name: body.item.name,
-		    artist: body.item.artists[0].name,
-		    album: body.item.album.name,
-		    album_cover: body.item.album.images[0].url
+    
+    options.headers.Authorization = 'Bearer ' + tokens[t].access;
+    request.get(options, function(error, response, body) {
+	if (body == null) {
+	}else{
+	    var stream = {
+		streamerID: t,
+		streamerName: tokens[t].name,
+		songID: body.item.id,
+		name: body.item.name,
+		artist: body.item.artists[0].name,
+		album: body.item.album.name,
+		album_cover: body.item.album.images[0].url
 		}
-		streams.push(stream)
+	    streams.push(stream)
+	}
+	show_stream_counter += 1
+	if(show_stream_counter == token_count){
+	    res.jsonp(streams);
 	    }
-	    show_stream_counter += 1
-	    if(show_stream_counter == token_count){
-		res.jsonp(streams);
-	    }
-	});
+    });
 }
 
 
@@ -198,8 +200,6 @@ router.get("/friends-streaming", function (req, res) {
 
     for(var t in tokens){
 	getStream(res, t, tokens, streams);
-
-
     }
 
 });
@@ -230,38 +230,93 @@ var getQueue = function (conn, cb) {
 
 
 router.get("/getqueue", function (req, res) {
-    dbhelper.getProcResults(dbhelper.getQueue, [2], res)
+    dbhelper.getProcResults(dbhelper.getQueue, [req.query.streamID], res)
 });
 
 
 router.get("/addToQueue", function (req, res) {
     var query = dbhelper.addtoQueue
-    dbhelper.ExecuteQuery(query, [2, req.query.id], res)
-    res.send("success")
-});
+    var params = [req.query.streamID, req.query.id]
+    dbhelper.ExecuteQuery(query, params);
+    res.jsonp({status:'done'})
+  });
+
 
 
   router.get("/playedSong", function (req, res) {
     var query = dbhelper.playedSong
-    console.log([req.query.stid, req.query.sid])
-    dbhelper.ExecuteQuery(query, [parseInt(req.query.stid), req.query.sid], res)
+    var params = [parseInt(req.query.stid), req.query.sid]
+    dbhelper.ExecuteQuery(query, params);
+    res.jsonp({status:'done'})
   });
 
   router.get("/upvoteSong", function (req, res) {
     var query = dbhelper.upVoteSong
-    console.log([parseInt(req.query.streamID),
-        req.query.userID, req.query.queuesongID])
-    dbhelper.ExecuteQuery(query, [parseInt(req.query.streamID),
-        req.query.userID, req.query.queuesongID], res)
+    var params = [parseInt(req.query.streamID),
+        req.query.userID, req.query.queuesongID]
+    dbhelper.ExecuteQuery(query, params);
+    res.jsonp({status:'done'})
   });
 
 
   router.get("/downvoteSong", function (req, res) {
     var query = dbhelper.downVoteSong
-    dbhelper.ExecuteQuery(query, [parseInt(req.query.streamID),
-        req.query.userID, req.query.queuesongID], res)
+    var params = [parseInt(req.query.streamID),
+        req.query.userID, req.query.queuesongID]
+    dbhelper.ExecuteQuery(query, params);
+    res.jsonp({status:'done'})
   });
 
+  router.get("/getFollowersCount", function (req, res) {
+    var query = dbhelper.getFollowersCount
+    var params = [parseInt(req.query.streamID),
+        req.query.userID, req.query.queuesongID]
+    dbhelper.ExecuteQuery(query, params)
+    res.jsonp({status:'done'})
+  });
+
+
+  router.get("/getFolloweesCount", function (req, res) {
+    var query = dbhelper.getFolloweesCount
+    var params = [parseInt(req.query.streamID),
+        req.query.userID, req.query.queuesongID]
+    dbhelper.ExecuteQuery(query, params)
+    res.jsonp({status:'done'})
+  });
+
+
+router.get("/startStream", function (req, res) {
+    var query = dbhelper.startStream;
+    var params = [req.query.hostid, req.query.description, req.query.acc];
+    dbhelper.getProcResults(query, params, res)
+});
+
+
+  router.get("/joinStream", function (req, res) {
+    var query = dbhelper.joinStream
+    var params = [parseInt(req.query.streamID), req.query.userID]
+    console.log(params)
+    dbhelper.ExecuteQuery(query, params)
+    res.jsonp({status:'done'})
+  });
+
+
+  router.get("/leaveStream", function (req, res) {
+    var query = dbhelper.leaveStream
+    var params = [parseInt(req.query.streamID),
+        req.query.userID, req.query.queuesongID]
+    dbhelper.ExecuteQuery(query, params)
+    res.jsonp({status:'done'})
+  });
+
+
+  router.get("/getUserPrivacy", function (req, res) {
+    var query = dbhelper.getUserPrivacy
+    var params = [parseInt(req.query.streamID),
+        req.query.userID, req.query.queuesongID]
+    dbhelper.ExecuteQuery(query, params)
+    res.jsonp({status:'done'})
+  });
 
 
 module.exports = router;

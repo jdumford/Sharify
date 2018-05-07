@@ -44,9 +44,11 @@ function play(trackID){
 
 function onStateChange(state){
   if (isSongOver(state)){
-    playedSong([2, state["track_window"]["current_track"]["id"]])
+    if (getCookie('mystream') == 'true'){
+      playedSong([getCookie('streamID'), state["track_window"]["current_track"]["id"]])
+    }
     playNextTrackFromQueue()
-    playerShowQueue()
+    showQueue()
   }
   else{
    if (state != null){
@@ -78,6 +80,9 @@ function playNextTrackFromQueue(){
    type: "GET",
    dataType: 'jsonp',
    headers: headers,
+   data: {
+     streamID: getCookie('streamID')
+   },
    success: function(data) {
      getNextTrack(data)
    },

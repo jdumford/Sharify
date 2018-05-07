@@ -218,30 +218,87 @@ var getQueue = function (conn, cb) {
 
   router.get("/addToQueue", function (req, res) {
     var query = dbhelper.addtoQueue
-    dbhelper.ExecuteQuery(query, [2, req.query.id], res)
+    var params = [req.query.streamID, req.query.id]
+    dbhelper.ExecuteQuery(query, params);
+    res.jsonp({status:'done'})
   });
 
 
   router.get("/playedSong", function (req, res) {
     var query = dbhelper.playedSong
-    console.log([req.query.stid, req.query.sid])
-    dbhelper.ExecuteQuery(query, [parseInt(req.query.stid), req.query.sid], res)
+    var params = [parseInt(req.query.stid), req.query.sid]
+    dbhelper.ExecuteQuery(query, params);
+    res.jsonp({status:'done'})
   });
 
   router.get("/upvoteSong", function (req, res) {
     var query = dbhelper.upVoteSong
-    console.log([parseInt(req.query.streamID),
-        req.query.userID, req.query.queuesongID])
-    dbhelper.ExecuteQuery(query, [parseInt(req.query.streamID),
-        req.query.userID, req.query.queuesongID], res)
+    var params = [parseInt(req.query.streamID),
+        req.query.userID, req.query.queuesongID]
+    dbhelper.ExecuteQuery(query, params);
+    res.jsonp({status:'done'})
   });
 
 
   router.get("/downvoteSong", function (req, res) {
     var query = dbhelper.downVoteSong
-    dbhelper.ExecuteQuery(query, [parseInt(req.query.streamID),
-        req.query.userID, req.query.queuesongID], res)
+    var params = [parseInt(req.query.streamID),
+        req.query.userID, req.query.queuesongID]
+    dbhelper.ExecuteQuery(query, params);
+    res.jsonp({status:'done'})
   });
+
+  router.get("/getFollowersCount", function (req, res) {
+    var query = dbhelper.getFollowersCount
+    var params = [parseInt(req.query.streamID),
+        req.query.userID, req.query.queuesongID]
+    dbhelper.ExecuteQuery(query, params)
+    res.jsonp({status:'done'})
+  });
+
+
+  router.get("/getFolloweesCount", function (req, res) {
+    var query = dbhelper.getFolloweesCount
+    var params = [parseInt(req.query.streamID),
+        req.query.userID, req.query.queuesongID]
+    dbhelper.ExecuteQuery(query, params)
+    res.jsonp({status:'done'})
+  });
+
+
+  router.get("/startStream", function (req, res) {
+    var query = dbhelper.startStream
+    var params = [req.query.hostid, req.query.description, req.query.acc]
+    dbhelper.getProcResults(query, params, res)
+  });
+
+
+  router.get("/joinStream", function (req, res) {
+    var query = dbhelper.joinStream
+    var params = [parseInt(req.query.streamID),
+        req.query.userID, req.query.queuesongID]
+    dbhelper.ExecuteQuery(query, params)
+    res.jsonp({status:'done'})
+  });
+
+
+  router.get("/leaveStream", function (req, res) {
+    var query = dbhelper.leaveStream
+    var params = [parseInt(req.query.streamID),
+        req.query.userID, req.query.queuesongID]
+    dbhelper.ExecuteQuery(query, params)
+    res.jsonp({status:'done'})
+  });
+
+
+  router.get("/getUserPrivacy", function (req, res) {
+    var query = dbhelper.getUserPrivacy
+    var params = [parseInt(req.query.streamID),
+        req.query.userID, req.query.queuesongID]
+    dbhelper.ExecuteQuery(query, params)
+    res.jsonp({status:'done'})
+  });
+
 
 
 

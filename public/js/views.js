@@ -84,8 +84,8 @@ function startStream(){
     //set the opions for a stream
     var description = $('#stream-description').val();
     var access = $("input:radio[name='stream-access']:checked").val();
-    console.log(description)
-    console.log(access)
+    var params = [getCookie('uid-cookie'), description, access]
+    startStreamDB(params)
 }
 
 //when you click the play button on a stream
